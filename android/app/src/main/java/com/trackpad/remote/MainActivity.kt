@@ -850,25 +850,19 @@ class MainActivity : AppCompatActivity() {
                     if (pointerCount == 1 && !isTwoFingerGesture) {
                         val dx = event.x - lastX
                         val dy = event.y - lastY
+                        lastX = event.x
+                        lastY = event.y
+
                         val dist = hypot(dx, dy)
                         totalMovement += dist
 
-                        // Zero-deadzone: Instant cursor response on the very first pixel!
-                        if (dist > 0.3f) {
-                            // Dynamic velocity acceleration matching Apple Magic Trackpad
-                            val factor = when {
-                                dist > 25f -> 1.45f
-                                dist > 14f -> 1.30f
-                                dist > 5f  -> 1.15f
-                                else       -> 1.05f
-                            }
+                        if (dx != 0f || dy != 0f) {
+                            // Smooth continuous acceleration matching physical mouse ballistic curve
+                            val factor = 1.0f + (dist / 80f).coerceAtMost(0.65f)
                             val sendDx = dx * sensitivity * factor
                             val sendDy = dy * sensitivity * factor
                             dispatchMouseMove(sendDx, sendDy)
                         }
-
-                        lastX = event.x
-                        lastY = event.y
 
                     } else if (pointerCount >= 2) {
                         isTwoFingerGesture = true
@@ -877,13 +871,12 @@ class MainActivity : AppCompatActivity() {
 
                         val scrollDx = avgX - lastScrollX
                         val scrollDy = avgY - lastScrollY
-
-                        if (hypot(scrollDx, scrollDy) > 0.8f) {
-                            dispatchScroll(scrollDx * 0.9f, scrollDy * 0.9f)
-                        }
-
                         lastScrollX = avgX
                         lastScrollY = avgY
+
+                        if (scrollDx != 0f || scrollDy != 0f) {
+                            dispatchScroll(scrollDx * 0.9f, scrollDy * 0.9f)
+                        }
                     }
                     true
                 }
@@ -904,6 +897,10 @@ class MainActivity : AppCompatActivity() {
                     if (!isTwoFingerGesture && totalMovement < 10f && duration < 260) {
                         vibrate(20)
                         dispatchMouseClick("left")
+                    } else {
+                        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
+                            bluetoothHidManager.flushRemainder()
+                        }
                     }
                     totalMovement = 0f
                     isTwoFingerGesture = false

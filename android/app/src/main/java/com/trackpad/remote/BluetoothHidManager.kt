@@ -123,24 +123,24 @@ class BluetoothHidManager(
     private var pendingScroll = 0f
     private val movementLock = Any()
     private var keepAliveJob: Job? = null
-    private var scheduledFlushJob: Job? = null
     private var lastTargetDevice: BluetoothDevice? = null
     private var isUserDisconnected = false
 
-    // Hardware report throttle: 7ms (~142Hz) matching 120Hz-144Hz screen refresh rate
-    private val MIN_REPORT_INTERVAL_MS = 7L
+    // Hardware report throttle: 4ms (~250Hz) to prevent controller buffer congestion while matching 120Hz/90Hz touch sensors
+    private val MIN_REPORT_INTERVAL_MS = 4L
     @Volatile private var lastSendTimeMs = 0L
 
     private fun startKeepAliveLoop() {
         keepAliveJob?.cancel()
         keepAliveJob = scope.launch(Dispatchers.IO) {
             while (isActive) {
-                delay(2000)
+                delay(300)
                 val target = connectedDevice
                 val dev = hidDevice
                 if (target != null && dev != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     val now = SystemClock.uptimeMillis()
-                    if (now - lastSendTimeMs >= 1800L) {
+                    // Keep link active in Link State 0 (Active Mode) so macOS never drops to 30ms Sniff Mode
+                    if (now - lastSendTimeMs >= 280L) {
                         try {
                             val report = byteArrayOf(currentButtons, 0, 0, 0)
                             dev.sendReport(target, REPORT_ID_MOUSE, report)
@@ -337,36 +337,55 @@ class BluetoothHidManager(
         val dev = hidDevice ?: return
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
 
-        var sendX = 0
-        var sendY = 0
-
         synchronized(movementLock) {
             pendingDx += dx
             pendingDy += dy
 
             val now = SystemClock.uptimeMillis()
-            if (now - lastSendTimeMs >= MIN_REPORT_INTERVAL_MS) {
-                sendX = pendingDx.toInt().coerceIn(-127, 127)
-                sendY = pendingDy.toInt().coerceIn(-127, 127)
+            // Throttle to 4ms (250Hz max) to prevent Bluetooth buffer overflow while capturing every frame at 120Hz/90Hz
+            if (now - lastSendTimeMs < MIN_REPORT_INTERVAL_MS) {
+                return
+            }
 
-                if (sendX != 0 || sendY != 0) {
+            val sendX = pendingDx.toInt().coerceIn(-127, 127)
+            val sendY = pendingDy.toInt().coerceIn(-127, 127)
+
+            if (sendX != 0 || sendY != 0) {
+                val report = byteArrayOf(currentButtons, sendX.toByte(), sendY.toByte(), 0)
+                val sent = try {
+                    dev.sendReport(target, REPORT_ID_MOUSE, report)
+                } catch (_: Exception) {
+                    false
+                }
+                if (sent) {
                     pendingDx -= sendX
                     pendingDy -= sendY
                     lastSendTimeMs = now
                 }
             }
         }
+    }
 
-        if (sendX != 0 || sendY != 0) {
-            // Instant dispatch to radio with zero queueing wait
-            scope.launch(Dispatchers.IO) {
+    fun flushRemainder() {
+        val target = connectedDevice ?: return
+        val dev = hidDevice ?: return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
+
+        synchronized(movementLock) {
+            val sendX = pendingDx.toInt().coerceIn(-127, 127)
+            val sendY = pendingDy.toInt().coerceIn(-127, 127)
+            val sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
+
+            if (sendX != 0 || sendY != 0 || sendWheel != 0) {
                 try {
-                    val report = byteArrayOf(currentButtons, sendX.toByte(), sendY.toByte(), 0)
+                    val report = byteArrayOf(currentButtons, sendX.toByte(), sendY.toByte(), sendWheel.toByte())
                     dev.sendReport(target, REPORT_ID_MOUSE, report)
+                    pendingDx = 0f
+                    pendingDy = 0f
+                    pendingScroll = 0f
+                    lastSendTimeMs = SystemClock.uptimeMillis()
                 } catch (_: Exception) {}
             }
-        } else {
-            scheduleRemainderFlush(dev, target)
         }
     }
 
@@ -419,57 +438,25 @@ class BluetoothHidManager(
         val dev = hidDevice ?: return
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
 
-        var sendWheel = 0
         synchronized(movementLock) {
             pendingScroll += (scrollDy / 2.0f)
             val now = SystemClock.uptimeMillis()
-            if (now - lastSendTimeMs >= MIN_REPORT_INTERVAL_MS) {
-                sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
-                if (sendWheel != 0) {
+            if (now - lastSendTimeMs < MIN_REPORT_INTERVAL_MS) {
+                return
+            }
+
+            val sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
+            if (sendWheel != 0) {
+                val report = byteArrayOf(currentButtons, 0, 0, sendWheel.toByte())
+                val sent = try {
+                    dev.sendReport(target, REPORT_ID_MOUSE, report)
+                } catch (_: Exception) {
+                    false
+                }
+                if (sent) {
                     pendingScroll -= sendWheel
                     lastSendTimeMs = now
                 }
-            }
-        }
-
-        if (sendWheel != 0) {
-            scope.launch(Dispatchers.IO) {
-                try {
-                    val report = byteArrayOf(currentButtons, 0, 0, sendWheel.toByte())
-                    dev.sendReport(target, REPORT_ID_MOUSE, report)
-                } catch (_: Exception) {}
-            }
-        } else {
-            scheduleRemainderFlush(dev, target)
-        }
-    }
-
-    private fun scheduleRemainderFlush(dev: BluetoothHidDevice, target: BluetoothDevice) {
-        if (scheduledFlushJob?.isActive == true) return
-        scheduledFlushJob = scope.launch(Dispatchers.IO) {
-            val elapsed = SystemClock.uptimeMillis() - lastSendTimeMs
-            val waitMs = (MIN_REPORT_INTERVAL_MS - elapsed).coerceAtLeast(1L)
-            delay(waitMs)
-
-            var sendX = 0
-            var sendY = 0
-            var sendWheel = 0
-            synchronized(movementLock) {
-                sendX = pendingDx.toInt().coerceIn(-127, 127)
-                sendY = pendingDy.toInt().coerceIn(-127, 127)
-                sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
-
-                pendingDx -= sendX
-                pendingDy -= sendY
-                pendingScroll -= sendWheel
-                lastSendTimeMs = SystemClock.uptimeMillis()
-            }
-
-            if (sendX != 0 || sendY != 0 || sendWheel != 0) {
-                try {
-                    val report = byteArrayOf(currentButtons, sendX.toByte(), sendY.toByte(), sendWheel.toByte())
-                    dev.sendReport(target, REPORT_ID_MOUSE, report)
-                } catch (_: Exception) {}
             }
         }
     }
@@ -620,7 +607,6 @@ class BluetoothHidManager(
         connectedDevice = null
         isRegistered = false
         keepAliveJob?.cancel()
-        scheduledFlushJob?.cancel()
         scope.cancel()
     }
 }
