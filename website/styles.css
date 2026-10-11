@@ -556,8 +556,7 @@ body::after {
 .footer-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 
