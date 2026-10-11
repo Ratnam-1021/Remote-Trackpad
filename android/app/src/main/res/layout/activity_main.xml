@@ -849,11 +849,27 @@
                 android:focusable="true" />
         </LinearLayout>
 
-        <!-- ============================================================= -->
-        <!-- BLUETOOTH CONTENT (Zero-Install Hardware Mouse Mode)          -->
-        <!-- ============================================================= -->
-        <LinearLayout
-            android:id="@+id/layoutBluetoothContent"
+        <!-- Scrollable Content Container for Bluetooth and Wi-Fi Lists -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            android:overScrollMode="ifContentScrolls"
+            android:clipToPadding="false"
+            android:paddingBottom="32dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- ============================================================= -->
+                <!-- BLUETOOTH CONTENT (Zero-Install Hardware Mouse Mode)          -->
+                <!-- ============================================================= -->
+                <LinearLayout
+                    android:id="@+id/layoutBluetoothContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -1150,6 +1166,9 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
 
     <!-- ================================================================= -->
