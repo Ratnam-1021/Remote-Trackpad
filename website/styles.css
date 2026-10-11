@@ -944,7 +944,15 @@ p {
 }
 
 .btn-icon {
-  font-size: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.btn-icon svg {
+  display: block;
 }
 
 .btn-cta-text {
