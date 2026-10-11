@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Remote Trackpad</title>
+  <meta name="description" content="Privacy Policy for Remote Trackpad Android application and Desktop Companion. We do not collect, store, or share any personal data.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E5CE6'><rect width='24' height='24' rx='6' fill='%235E5CE6'/><circle cx='12' cy='12' r='4' fill='white'/></svg>">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo-group">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <span class="logo-text">Remote Trackpad</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#download">Download</a></li>
+          <li><a href="privacy.html" style="color: #fff;">Privacy Policy</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container privacy-wrapper">
+    <div class="privacy-card">
+      <h1>Privacy Policy</h1>
+      <span class="privacy-date">Last updated: October 11, 2026</span>
+
+      <div class="privacy-highlight">
+        <strong>Summary:</strong> Remote Trackpad is built with a zero-knowledge architecture. We do not collect, log, track, sell, or transmit any personal data, usage habits, keystrokes, or network details to any external server. All communication happens strictly inside your local Wi-Fi network.
+      </div>
+
+      <h2>1. Introduction</h2>
+      <p>
+        This Privacy Policy applies to the <strong>Remote Trackpad</strong> mobile application (the "App") and the <strong>Remote Trackpad Desktop Server</strong> (the "Companion Software"). Remote Trackpad is designed to function as a wireless trackpad, keyboard, and presentation remote controller between your mobile device and your personal computer over a local area network (LAN).
+      </p>
+
+      <h2>2. Information We Do NOT Collect</h2>
+      <p>
+        Remote Trackpad does not collect any personally identifiable information (PII). Specifically:
+      </p>
+      <ul>
+        <li><strong>No Account Required:</strong> You do not need an email, phone number, password, or account to use the application.</li>
+        <li><strong>No Keystroke Logging:</strong> Any text sent through the Remote Typing feature is converted directly into keyboard input events on your local machine and is never cached, logged, or recorded.</li>
+        <li><strong>No Telemetry or Analytics:</strong> We do not embed Google Analytics, Firebase, Mixpanel, Crashlytics, or any third-party behavioral analytics SDKs.</li>
+        <li><strong>No Advertising:</strong> There are no advertising SDKs, tracking pixels, or cross-app tracking identifiers in the App.</li>
+        <li><strong>No Cloud Servers:</strong> Touch gestures and commands are never uploaded to any cloud server or third-party service.</li>
+      </ul>
+
+      <h2>3. Device Permissions & Why We Need Them</h2>
+      <p>
+        To perform its core functions as a remote input device, the App requests only standard Android permissions:
+      </p>
+      <ul>
+        <li><strong>INTERNET:</strong> Required to establish a direct local TCP socket connection between your phone and your computer's IP address. No internet connectivity outside of your local router is accessed.</li>
+        <li><strong>ACCESS_WIFI_STATE:</strong> Used solely to detect whether your device is connected to a local Wi-Fi network and calculate local subnet parameters for device discovery.</li>
+        <li><strong>CHANGE_WIFI_MULTICAST_STATE:</strong> Enables the phone to listen for UDP discovery beacons (on port 8766) sent by your computer to automatically detect your Mac or PC without requiring manual IP entry.</li>
+        <li><strong>VIBRATE:</strong> Used solely to provide tactile micro-haptic feedback when tapping or swiping on the trackpad.</li>
+      </ul>
+
+      <h2>4. Local Network Communication</h2>
+      <p>
+        When you use Remote Trackpad:
+      </p>
+      <ul>
+        <li>The companion desktop server broadcasts a small announcement beacon containing its hostname and local IP address (e.g. <code>10.90.63.215</code>) within your private Wi-Fi subnet.</li>
+        <li>When connected, raw touchpad coordinates and click commands are sent directly to your computer's local port (default 8765) using low-latency TCP.</li>
+        <li>This data never leaves your local Wi-Fi router. If you disconnect your router from the global Internet, Remote Trackpad will continue to work normally offline.</li>
+      </ul>
+
+      <h2>5. Children's Privacy</h2>
+      <p>
+        The App is compliant with the Children's Online Privacy Protection Act (COPPA) and the General Data Protection Regulation (GDPR). Because the App collects zero personal data from any user, it does not knowingly collect information from children under the age of 13.
+      </p>
+
+      <h2>6. Security of Your Data</h2>
+      <p>
+        Because we do not store, process, or transmit your data on remote servers, your information cannot be leaked, breached, or sold from our infrastructure. Your trackpad traffic is confined to your private local network.
+      </p>
+
+      <h2>7. Changes to This Privacy Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated "Last updated" date. We encourage you to review this Privacy Policy periodically.
+      </p>
+
+      <h2>8. Contact Information</h2>
+      <p>
+        If you have any questions, concerns, or inquiries regarding this Privacy Policy or the security of Remote Trackpad, please contact us at:
+      </p>
+      <p>
+        <strong>Email:</strong> support@remotetrackpad.app<br>
+        <strong>Website:</strong> <a href="index.html" style="color: #5E5CE6;">https://remotetrackpad.vercel.app</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <p class="footer-text">
+        © 2026 Remote Trackpad. Built for speed, privacy, and simplicity.
+      </p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#download">Download</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

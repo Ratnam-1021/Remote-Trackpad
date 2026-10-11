@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deep Obsidian Dark Palette -->
+    <color name="bg_dark">#0B0D13</color>
+    <color name="surface_card">#131620</color>
+    <color name="surface_card_elevated">#1A1E2C</color>
+    <color name="surface_dark">#181B26</color>
+    <color name="surface_border">#232838</color>
+    <color name="surface_border_subtle">#1A1E2D</color>
+
+    <!-- Accent Blurple -->
+    <color name="primary_accent">#5E5CE6</color>
+    <color name="primary_accent_pressed">#4C49D4</color>
+    <color name="primary_accent_glow">#335E5CE6</color>
+    <color name="primary_accent_bg">#232642</color>
+
+    <!-- Status Badges -->
+    <color name="success_green">#22C55E</color>
+    <color name="success_green_glow">#143A26</color>
+    <color name="success_green_subtle">#3322C55E</color>
+    <color name="error_red">#EF4444</color>
+    <color name="error_red_dark">#DC2626</color>
+    <color name="error_red_bg">#30161C</color>
+
+    <!-- Typography -->
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_secondary">#8E95A5</color>
+    <color name="text_muted">#555D70</color>
+
+    <!-- Overlays -->
+    <color name="overlay_black_60">#99000000</color>
+    <color name="overlay_black_80">#CC000000</color>
+    <color name="dot_grid_color">#1F2433</color>
+</resources>

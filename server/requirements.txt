@@ -1,0 +1,4 @@
+# Trackpad Remote Server Dependencies
+pynput>=1.7.6
+# Optional: pyqrcode / qrcode for terminal QR code connection
+qrcode>=7.4.2

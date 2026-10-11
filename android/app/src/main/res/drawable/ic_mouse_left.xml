@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Mouse body -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_white"
+        android:strokeWidth="1.8"
+        android:pathData="M6,8a6,6 0,0 1,12 0v8a6,6 0,0 1,-12 0z" />
+    <!-- Center divider -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_white"
+        android:strokeWidth="1.6"
+        android:pathData="M12,2v7M6,9h12" />
+    <!-- Left click fill highlight -->
+    <path
+        android:fillColor="@color/primary_accent"
+        android:pathData="M6.5,8a5.5,5.5 0,0 1,5 -5.4v5.9h-5.4z" />
+</vector>

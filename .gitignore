@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Android / Gradle
+.gradle/
+android/.gradle/
+build/
+android/build/
+android/app/build/
+local.properties
+*.iml
+.idea/
+.vscode/
+
+# Build outputs (APKs / AABs)
+*.apk
+*.aab
+*.dex
+*.class
+
+# Android Studio / IntelliJ
+*.ipr
+*.iws
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+.venv/
+env/
+dist/
+*.egg-info/
+
+# Vercel
+.vercel
