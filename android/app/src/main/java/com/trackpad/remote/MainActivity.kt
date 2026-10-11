@@ -1,11 +1,8 @@
 package com.trackpad.remote
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -23,7 +20,6 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.trackpad.remote.databinding.ActivityMainBinding
@@ -35,14 +31,9 @@ import kotlin.math.hypot
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val REQUEST_BT_PERMS = 101
-    }
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var client: TrackpadClient
     private lateinit var discoveryManager: DeviceDiscoveryManager
-    private lateinit var bluetoothHidManager: BluetoothHidManager
     private var vibrator: Vibrator? = null
 
     // Preferences & Settings State
@@ -55,8 +46,6 @@ class MainActivity : AppCompatActivity() {
 
     // UI View State
     private var isConnected = false
-    private var isBluetoothConnected = false
-    private var activeConnectionMode = "bluetooth" // "bluetooth" or "wifi"
     private var isDrawerExpanded = false
     private var isPresentationMode = false
     private var isConnectionLost = false
@@ -92,7 +81,6 @@ class MainActivity : AppCompatActivity() {
 
         loadPreferences()
         setupNetworkClient()
-        setupBluetoothHid()
         setupDiscovery()
         setupHeaderInteractions()
         setupDockBar()
@@ -102,49 +90,8 @@ class MainActivity : AppCompatActivity() {
         setupTouchpadGesture()
         setupPresentationGestures()
 
-        checkAndRequestBluetoothPermissions()
-
         if (autoConnectEnabled && lastSavedIp.isNotEmpty()) {
             client.connect(lastSavedIp, lastSavedPort)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (::bluetoothHidManager.isInitialized) {
-            renderBluetoothDevices()
-        }
-    }
-
-    private fun checkAndRequestBluetoothPermissions(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val permissions = arrayOf(
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.BLUETOOTH_ADVERTISE,
-                Manifest.permission.BLUETOOTH_SCAN
-            )
-            val missing = permissions.filter {
-                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-            }
-            if (missing.isNotEmpty()) {
-                ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQUEST_BT_PERMS)
-                return false
-            }
-        }
-        return true
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_BT_PERMS) {
-            val allGranted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            if (allGranted) {
-                bluetoothHidManager.init()
-                renderBluetoothDevices()
-                Toast.makeText(this, "Bluetooth permissions granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Nearby device permission is needed for Bluetooth mode", Toast.LENGTH_LONG).show()
-            }
         }
     }
 
@@ -240,7 +187,6 @@ class MainActivity : AppCompatActivity() {
                     binding.layoutStatusBadge.setBackgroundResource(R.drawable.status_pill_bg)
 
                     binding.layoutDrawerWifiFields.visibility = View.VISIBLE
-                    binding.layoutDrawerBtFields.visibility = View.GONE
 
                     binding.layoutConnectionLostView.visibility = View.GONE
                     if (isPresentationMode) {
@@ -255,7 +201,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     binding.layoutStatusBadge.visibility = View.GONE
                     binding.tvHeaderTitle.text = "Not Connected"
-                    binding.tvHeaderSubtitle.text = "Tap to choose Bluetooth or Wi-Fi"
+                    binding.tvHeaderSubtitle.text = "Tap to connect"
 
                     if (isConnectionLost) {
                         binding.layoutConnectionLostView.visibility = View.VISIBLE
@@ -282,11 +228,13 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     private fun openConnectScreen() {
         binding.layoutConnectScreen.visibility = View.VISIBLE
-        if (activeConnectionMode == "bluetooth") {
-            binding.btnTabBluetooth.performClick()
-        } else {
-            binding.btnTabWifi.performClick()
-        }
+        renderDiscoveredSystems(discoveryManager.getDiscoveredDevices())
+        renderRecentDevices()
+        val currentInput = binding.etConnectIp.text.toString().trim()
+        val list = mutableListOf<String>()
+        if (currentInput.isNotEmpty()) list.add(currentInput)
+        if (lastSavedIp.isNotEmpty()) list.add(lastSavedIp)
+        discoveryManager.triggerImmediateProbe(list)
     }
 
     private fun setupHeaderInteractions() {
@@ -317,8 +265,7 @@ class MainActivity : AppCompatActivity() {
         // The chevron specifically toggles the expanded drawer for speed adjustments
         binding.btnHeaderChevron.setOnClickListener {
             vibrate(20)
-            val anyConnected = isConnected || isBluetoothConnected
-            if (anyConnected) {
+            if (isConnected) {
                 isDrawerExpanded = !isDrawerExpanded
                 binding.layoutExpandedDrawer.visibility = if (isDrawerExpanded) View.VISIBLE else View.GONE
                 binding.btnHeaderChevron.setImageResource(
@@ -330,9 +277,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnDrawerDisconnect.setOnClickListener {
-            if (isBluetoothConnected) {
-                bluetoothHidManager.disconnectDevice()
-            }
             client.disconnect()
             isDrawerExpanded = false
             binding.layoutExpandedDrawer.visibility = View.GONE
@@ -354,14 +298,7 @@ class MainActivity : AppCompatActivity() {
         binding.btnReconnect.setOnClickListener {
             binding.layoutConnectionLostView.visibility = View.GONE
             binding.touchpadSurface.visibility = View.VISIBLE
-            if (activeConnectionMode == "bluetooth") {
-                val paired = bluetoothHidManager.getPairedDevices()
-                if (paired.isNotEmpty()) {
-                    bluetoothHidManager.connectDevice(paired.first())
-                }
-            } else {
-                client.connect(lastSavedIp, lastSavedPort)
-            }
+            client.connect(lastSavedIp, lastSavedPort)
         }
     }
 
@@ -494,53 +431,7 @@ class MainActivity : AppCompatActivity() {
             saveToRecentDevices(activeSystemName, ip, port)
 
             binding.layoutConnectScreen.visibility = View.GONE
-            activeConnectionMode = "wifi"
             client.connect(ip, port)
-        }
-
-        binding.btnTabBluetooth.setOnClickListener {
-            vibrate(20)
-            binding.btnTabBluetooth.setBackgroundResource(R.drawable.dock_btn_active)
-            binding.btnTabBluetooth.setTextColor(ContextCompat.getColor(this, R.color.text_white))
-            binding.btnTabWifi.setBackgroundResource(android.R.color.transparent)
-            binding.btnTabWifi.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-
-            binding.layoutBluetoothContent.visibility = View.VISIBLE
-            binding.layoutWifiContent.visibility = View.GONE
-
-            if (checkAndRequestBluetoothPermissions()) {
-                bluetoothHidManager.init()
-                renderBluetoothDevices()
-            }
-        }
-
-        binding.btnTabWifi.setOnClickListener {
-            vibrate(20)
-            binding.btnTabWifi.setBackgroundResource(R.drawable.dock_btn_active)
-            binding.btnTabWifi.setTextColor(ContextCompat.getColor(this, R.color.text_white))
-            binding.btnTabBluetooth.setBackgroundResource(android.R.color.transparent)
-            binding.btnTabBluetooth.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-
-            binding.layoutWifiContent.visibility = View.VISIBLE
-            binding.layoutBluetoothContent.visibility = View.GONE
-
-            renderDiscoveredSystems(discoveryManager.getDiscoveredDevices())
-            renderRecentDevices()
-            val typedIp = binding.etConnectIp.text.toString().trim()
-            discoveryManager.triggerImmediateProbe(if (typedIp.isNotEmpty()) listOf(typedIp) else emptyList())
-        }
-
-        binding.btnOpenBluetoothSettings.setOnClickListener {
-            vibrate(25)
-            if (!checkAndRequestBluetoothPermissions()) {
-                return@setOnClickListener
-            }
-            try {
-                val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Could not open Bluetooth settings", Toast.LENGTH_SHORT).show()
-            }
         }
 
         binding.btnScanWifi.setOnClickListener {
@@ -566,11 +457,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         renderRecentDevices()
-        renderBluetoothDevices()
     }
 
     private fun connectToRecent(name: String, ip: String, port: Int) {
-        activeConnectionMode = "wifi"
         activeSystemName = name
         binding.etConnectIp.setText(ip)
         binding.etConnectPort.setText(port.toString())
@@ -650,11 +539,10 @@ class MainActivity : AppCompatActivity() {
 
                 val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerRecentList, false)
                 itemBinding.tvSystemName.text = name
-                itemBinding.tvSystemIp.text = "$ip · $port"
+                val isOnline = onlineDevices.any { it.ip == ip && it.port == port }
+                itemBinding.tvSystemIp.text = if (isOnline) "$ip · $port • Online" else "$ip · $port"
                 itemBinding.ivSystemIcon.setImageResource(R.drawable.ic_laptop)
                 itemBinding.dividerBottom.visibility = if (i == arr.length() - 1) View.GONE else View.VISIBLE
-
-                val isOnline = onlineDevices.any { it.ip == ip && it.port == port }
                 val isCurrentlyActive = isConnected && lastSavedIp == ip && lastSavedPort == port
 
                 if (isCurrentlyActive) {
@@ -946,9 +834,7 @@ class MainActivity : AppCompatActivity() {
                         vibrate(20)
                         dispatchMouseClick("left")
                     } else {
-                        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-                            bluetoothHidManager.flushRemainder()
-                        } else if (isConnected && activeConnectionMode == "wifi") {
+                        if (isConnected) {
                             client.flushRemainder()
                         }
                     }
@@ -1126,208 +1012,52 @@ class MainActivity : AppCompatActivity() {
         binding.layoutExpandedDrawer.visibility = View.GONE
         binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
 
-        activeConnectionMode = "wifi"
         client.connect(device.ip, device.port)
         renderDiscoveredSystems(discoveryManager.getDiscoveredDevices())
     }
 
     // =========================================================================
-    // BLUETOOTH HID & UNIFIED DUAL-MODE DISPATCH
-    // =========================================================================
-    private fun setupBluetoothHid() {
-        bluetoothHidManager = BluetoothHidManager(
-            context = this,
-            onConnectionStateChanged = { connected, deviceName ->
-                runOnUiThread {
-                    isBluetoothConnected = connected
-                    if (connected) {
-                        activeConnectionMode = "bluetooth"
-                        val name = deviceName ?: "Bluetooth Device"
-                        binding.tvHeaderTitle.text = name
-                        binding.tvHeaderSubtitle.text = "Bluetooth HID • Tap to switch"
-                        binding.layoutStatusBadge.visibility = View.VISIBLE
-                        binding.tvStatusBadge.text = "Connected"
-                        binding.viewStatusDot.backgroundTintList = ContextCompat.getColorStateList(this, R.color.primary_accent)
-                        binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-
-                        binding.layoutDrawerWifiFields.visibility = View.GONE
-                        binding.layoutDrawerBtFields.visibility = View.VISIBLE
-                        binding.tvDrawerBtDeviceName.text = "Connected: $name (Bluetooth HID)"
-
-                        binding.layoutConnectionLostView.visibility = View.GONE
-                        if (isPresentationMode) {
-                            binding.layoutPresentationView.visibility = View.VISIBLE
-                            binding.touchpadSurface.visibility = View.GONE
-                        } else {
-                            binding.touchpadSurface.visibility = View.VISIBLE
-                            binding.layoutPresentationView.visibility = View.GONE
-                        }
-                        vibrate(40)
-                        Toast.makeText(this, "Connected via Bluetooth to $name", Toast.LENGTH_SHORT).show()
-                    } else {
-                        if (activeConnectionMode == "bluetooth") {
-                            if (!isConnected) {
-                                binding.layoutStatusBadge.visibility = View.GONE
-                                binding.tvHeaderTitle.text = "Not Connected"
-                                binding.tvHeaderSubtitle.text = "Tap to choose Bluetooth or Wi-Fi"
-                            }
-                        }
-                    }
-                    renderBluetoothDevices()
-                }
-            },
-            onSupportedState = { supported, message ->
-                runOnUiThread {
-                    if (!supported && message.isNotEmpty()) {
-                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        )
-        bluetoothHidManager.init()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun renderBluetoothDevices() {
-        if (!::bluetoothHidManager.isInitialized) return
-        val paired = bluetoothHidManager.getPairedDevices()
-        if (paired.isEmpty()) {
-            binding.tvBluetoothEmptyHint.visibility = View.VISIBLE
-            binding.cardBluetoothDevicesGroup.visibility = View.GONE
-            binding.containerBluetoothDevicesList.removeAllViews()
-        } else {
-            binding.tvBluetoothEmptyHint.visibility = View.GONE
-            binding.cardBluetoothDevicesGroup.visibility = View.VISIBLE
-            binding.containerBluetoothDevicesList.removeAllViews()
-
-            for ((index, device) in paired.withIndex()) {
-                val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerBluetoothDevicesList, false)
-                val deviceName = try { device.name ?: device.address ?: "Device" } catch (_: Exception) { device.address ?: "Device" }
-                itemBinding.tvSystemName.text = deviceName
-                itemBinding.tvSystemIp.visibility = View.GONE
-                itemBinding.btnSystemDelete.visibility = View.GONE
-                itemBinding.dividerBottom.visibility = if (index == paired.size - 1) View.GONE else View.VISIBLE
-
-                val lowerName = deviceName.lowercase()
-                val iconRes = when {
-                    lowerName.contains("buds") || lowerName.contains("headset") || lowerName.contains("headphone") ||
-                    lowerName.contains("earphone") || lowerName.contains("neckband") || lowerName.contains("soundcore") ||
-                    lowerName.contains("boat") || lowerName.contains("stone") || lowerName.contains("noise") ||
-                    lowerName.contains("enco") || lowerName.contains("bass") || lowerName.contains("speaker") ||
-                    lowerName.contains("audio") -> R.drawable.ic_headphones
-                    lowerName.contains("macbook") || lowerName.contains("laptop") || lowerName.contains("lapi") ||
-                    lowerName.contains("desktop") || lowerName.contains("computer") || lowerName.contains("pc") ||
-                    lowerName.contains("mac") || lowerName.contains("windows") -> R.drawable.ic_laptop
-                    else -> R.drawable.ic_bluetooth
-                }
-                itemBinding.ivSystemIcon.setImageResource(iconRes)
-
-                val isCurrent = isBluetoothConnected && bluetoothHidManager.getConnectedDeviceName() == deviceName
-
-                if (isCurrent) {
-                    itemBinding.tvSystemActionBadge.text = "Connected"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
-                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connected_bg)
-                } else {
-                    itemBinding.tvSystemActionBadge.text = "Connect"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_white))
-                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connect_bg)
-                }
-
-                val connectAction = View.OnClickListener {
-                    vibrate(30)
-                    activeConnectionMode = "bluetooth"
-                    bluetoothHidManager.connectDevice(device)
-                    Toast.makeText(this, "Connecting to $deviceName...", Toast.LENGTH_SHORT).show()
-                    binding.layoutConnectScreen.visibility = View.GONE
-                }
-                itemBinding.cardSystemItem.setOnClickListener(connectAction)
-                itemBinding.tvSystemActionBadge.setOnClickListener(connectAction)
-
-                binding.containerBluetoothDevicesList.addView(itemBinding.root)
-            }
-        }
-    }
-
-    // =========================================================================
-    // UNIFIED DISPATCH FUNCTIONS (Bluetooth HID or Wi-Fi LAN)
+    // DISPATCH FUNCTIONS (Wi-Fi LAN)
     // =========================================================================
     private fun dispatchMouseMove(dx: Float, dy: Float) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendMouseMove(dx, dy)
-        } else {
-            client.sendMove(dx, dy)
-        }
+        client.sendMove(dx, dy)
     }
 
     private fun dispatchMouseClick(button: String) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendMouseClick(button)
-        } else {
-            client.sendClick(button)
-        }
+        client.sendClick(button)
     }
 
     private fun dispatchMouseDown(button: String) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendMouseDown(button)
-        } else {
-            client.sendMouseDown(button)
-        }
+        client.sendMouseDown(button)
     }
 
     private fun dispatchMouseUp(button: String) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendMouseUp(button)
-        } else {
-            client.sendMouseUp(button)
-        }
+        client.sendMouseUp(button)
     }
 
     private fun dispatchScroll(scrollDx: Float, scrollDy: Float) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendScroll(scrollDy)
-        } else {
-            client.sendScroll(scrollDx, scrollDy)
-        }
+        client.sendScroll(scrollDx, scrollDy)
     }
 
     private fun dispatchSlide(next: Boolean) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendSlideNavigation(next)
-        } else {
-            if (next) client.sendNextSlide() else client.sendPrevSlide()
-        }
+        if (next) client.sendNextSlide() else client.sendPrevSlide()
     }
 
     private fun dispatchVolume(up: Boolean) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendVolume(up)
-        } else {
-            if (up) client.sendVolumeUp() else client.sendVolumeDown()
-        }
+        if (up) client.sendVolumeUp() else client.sendVolumeDown()
     }
 
     private fun dispatchKey(keyName: String) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendKey(keyName)
-        } else {
-            client.sendKey(keyName)
-        }
+        client.sendKey(keyName)
     }
 
     private fun dispatchText(text: String) {
-        if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
-            bluetoothHidManager.sendText(text)
-        } else {
-            client.sendText(text)
-        }
+        client.sendText(text)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         discoveryManager.stop()
-        bluetoothHidManager.destroy()
         client.disconnect()
     }
 }

@@ -66,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Tap to choose Bluetooth or Wi-Fi"
+                    android:text="Tap to connect"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -126,12 +126,12 @@
                 android:background="@color/surface_border"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Primary Switch Connection / Choose Bluetooth or Wi-Fi Button -->
+            <!-- Primary Switch Connection / Connect Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDrawerChooseConnection"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
-                android:text="⚡ Bluetooth / 📶 Wi-Fi Settings"
+                android:text="💻 Switch Computer / Connect"
                 android:textColor="@color/text_white"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -140,7 +140,7 @@
                 android:layout_marginBottom="12dp"
                 app:cornerRadius="12dp" />
 
-            <!-- Wi-Fi specific manual fields (shown only in Wi-Fi mode) -->
+            <!-- Wi-Fi specific manual fields -->
             <LinearLayout
                 android:id="@+id/layoutDrawerWifiFields"
                 android:layout_width="match_parent"
@@ -187,35 +187,6 @@
                     android:textSize="13sp"
                     android:inputType="number"
                     android:singleLine="true" />
-            </LinearLayout>
-
-            <!-- Bluetooth specific info (shown only in Bluetooth mode) -->
-            <LinearLayout
-                android:id="@+id/layoutDrawerBtFields"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:background="@drawable/card_group_bg"
-                android:padding="12dp"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/tvDrawerBtDeviceName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bluetooth HID (Zero-Install)"
-                    android:textColor="@color/text_white"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Native Apple mouse &amp; trackpad protocol"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <!-- Red Disconnect Button -->
@@ -862,45 +833,7 @@
                 android:contentDescription="Settings" />
         </LinearLayout>
 
-        <!-- Connection Mode Selector Segmented Pill (Bluetooth HID vs Wi-Fi LAN) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:background="@drawable/dock_btn_normal"
-            android:padding="3dp"
-            android:layout_marginBottom="20dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/btnTabBluetooth"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="⚡ Bluetooth HID"
-                android:textColor="@color/text_white"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:background="@drawable/dock_btn_active"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/btnTabWifi"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="📶 Wi-Fi LAN"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:background="@android:color/transparent"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
-
-        <!-- Scrollable Content Container for Bluetooth and Wi-Fi Lists -->
+        <!-- Scrollable Content Container for Wi-Fi Systems List -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -917,78 +850,14 @@
                 android:orientation="vertical">
 
                 <!-- ============================================================= -->
-                <!-- BLUETOOTH CONTENT (Zero-Install Hardware Mouse Mode)          -->
+                <!-- WI-FI CONTENT (Manual IP / Auto-Discovery LAN Mode)           -->
                 <!-- ============================================================= -->
                 <LinearLayout
-                    android:id="@+id/layoutBluetoothContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <!-- Pair New Computer Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOpenBluetoothSettings"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="🔍 Open Bluetooth Settings / Pair"
-                android:textColor="@color/text_white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                android:backgroundTint="@color/primary_accent"
-                app:cornerRadius="14dp"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Paired Devices Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Paired devices"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvBluetoothEmptyHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/card_group_bg"
-                android:padding="20dp"
-                android:text="No paired devices found.\n\nOpen Bluetooth on your Mac or PC, click 'Remote Trackpad', and pair once!"
-                android:textColor="@color/text_muted"
-                android:textSize="13sp"
-                android:gravity="center"
-                android:lineSpacingExtra="3dp"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Grouped Card Container for paired Bluetooth devices -->
-            <LinearLayout
-                android:id="@+id/cardBluetoothDevicesGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/card_group_bg"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:id="@+id/containerBluetoothDevicesList"
+                    android:id="@+id/layoutWifiContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- ============================================================= -->
-        <!-- WI-FI CONTENT (Manual IP / Auto-Discovery LAN Mode)           -->
-        <!-- ============================================================= -->
-        <LinearLayout
-            android:id="@+id/layoutWifiContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
             <!-- Primary Action Button: Scan Wi-Fi Network -->
             <com.google.android.material.button.MaterialButton
