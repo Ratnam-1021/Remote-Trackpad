@@ -232,12 +232,15 @@ class MainActivity : AppCompatActivity() {
                 if (connected) {
                     val displayName = if (activeSystemName.isNotEmpty()) activeSystemName else lastSavedIp
                     binding.tvHeaderTitle.text = displayName
-                    binding.tvHeaderSubtitle.text = "$lastSavedIp:$lastSavedPort"
+                    binding.tvHeaderSubtitle.text = "$lastSavedIp:$lastSavedPort • Tap to switch"
                     binding.layoutStatusBadge.visibility = View.VISIBLE
                     binding.tvStatusBadge.text = "Connected"
                     binding.viewStatusDot.backgroundTintList = ContextCompat.getColorStateList(this, R.color.success_green)
                     binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
                     binding.layoutStatusBadge.setBackgroundResource(R.drawable.status_pill_bg)
+
+                    binding.layoutDrawerWifiFields.visibility = View.VISIBLE
+                    binding.layoutDrawerBtFields.visibility = View.GONE
 
                     binding.layoutConnectionLostView.visibility = View.GONE
                     if (isPresentationMode) {
@@ -252,7 +255,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     binding.layoutStatusBadge.visibility = View.GONE
                     binding.tvHeaderTitle.text = "Not Connected"
-                    binding.tvHeaderSubtitle.text = "Tap to connect"
+                    binding.tvHeaderSubtitle.text = "Tap to choose Bluetooth or Wi-Fi"
 
                     if (isConnectionLost) {
                         binding.layoutConnectionLostView.visibility = View.VISIBLE
@@ -277,9 +280,19 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     // HEADER & EXPANDED DRAWER INTERACTIONS (Screens 1, 3, 6)
     // =========================================================================
+    private fun openConnectScreen() {
+        binding.layoutConnectScreen.visibility = View.VISIBLE
+        if (activeConnectionMode == "bluetooth") {
+            binding.btnTabBluetooth.performClick()
+        } else {
+            binding.btnTabWifi.performClick()
+        }
+    }
+
     private fun setupHeaderInteractions() {
         binding.headerSummaryRow.setOnClickListener {
-            if (isConnected) {
+            val anyConnected = isConnected || isBluetoothConnected
+            if (anyConnected) {
                 // Toggle expanded drawer
                 isDrawerExpanded = !isDrawerExpanded
                 binding.layoutExpandedDrawer.visibility = if (isDrawerExpanded) View.VISIBLE else View.GONE
@@ -287,14 +300,29 @@ class MainActivity : AppCompatActivity() {
                     if (isDrawerExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
                 )
             } else {
-                // Open Connect Screen (Screen 2)
-                binding.layoutConnectScreen.visibility = View.VISIBLE
+                openConnectScreen()
                 val currentInput = binding.etConnectIp.text.toString().trim()
                 val list = mutableListOf<String>()
                 if (currentInput.isNotEmpty()) list.add(currentInput)
                 if (lastSavedIp.isNotEmpty()) list.add(lastSavedIp)
                 discoveryManager.triggerImmediateProbe(list)
             }
+        }
+
+        binding.layoutStatusBadge.setOnClickListener {
+            vibrate(25)
+            isDrawerExpanded = false
+            binding.layoutExpandedDrawer.visibility = View.GONE
+            binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
+            openConnectScreen()
+        }
+
+        binding.btnDrawerChooseConnection.setOnClickListener {
+            vibrate(25)
+            isDrawerExpanded = false
+            binding.layoutExpandedDrawer.visibility = View.GONE
+            binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
+            openConnectScreen()
         }
 
         binding.btnHeaderChevron.setOnClickListener {
@@ -309,6 +337,7 @@ class MainActivity : AppCompatActivity() {
             isDrawerExpanded = false
             binding.layoutExpandedDrawer.visibility = View.GONE
             binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
+            openConnectScreen()
         }
 
         binding.seekSpeedDrawer.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -494,6 +523,11 @@ class MainActivity : AppCompatActivity() {
 
             binding.layoutWifiContent.visibility = View.VISIBLE
             binding.layoutBluetoothContent.visibility = View.GONE
+
+            renderDiscoveredSystems(discoveryManager.getDiscoveredDevices())
+            renderRecentDevices()
+            val typedIp = binding.etConnectIp.text.toString().trim()
+            discoveryManager.triggerImmediateProbe(if (typedIp.isNotEmpty()) listOf(typedIp) else emptyList())
         }
 
         binding.btnOpenBluetoothSettings.setOnClickListener {
@@ -507,6 +541,13 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this, "Could not open Bluetooth settings", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.btnScanWifi.setOnClickListener {
+            vibrate(25)
+            val typedIp = binding.etConnectIp.text.toString().trim()
+            discoveryManager.triggerImmediateProbe(if (typedIp.isNotEmpty()) listOf(typedIp) else emptyList())
+            Toast.makeText(this, "Scanning Wi-Fi network...", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnScanAgain.setOnClickListener {
@@ -529,6 +570,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectToRecent(name: String, ip: String, port: Int) {
+        activeConnectionMode = "wifi"
         activeSystemName = name
         binding.etConnectIp.setText(ip)
         binding.etConnectPort.setText(port.toString())
@@ -900,6 +942,8 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         if (isBluetoothConnected && activeConnectionMode == "bluetooth") {
                             bluetoothHidManager.flushRemainder()
+                        } else if (isConnected && activeConnectionMode == "wifi") {
+                            client.flushRemainder()
                         }
                     }
                     totalMovement = 0f
@@ -1076,6 +1120,7 @@ class MainActivity : AppCompatActivity() {
         binding.layoutExpandedDrawer.visibility = View.GONE
         binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
 
+        activeConnectionMode = "wifi"
         client.connect(device.ip, device.port)
         renderDiscoveredSystems(discoveryManager.getDiscoveredDevices())
     }
@@ -1093,11 +1138,15 @@ class MainActivity : AppCompatActivity() {
                         activeConnectionMode = "bluetooth"
                         val name = deviceName ?: "Bluetooth Device"
                         binding.tvHeaderTitle.text = name
-                        binding.tvHeaderSubtitle.text = "Bluetooth HID (Zero-Install)"
+                        binding.tvHeaderSubtitle.text = "Bluetooth HID • Tap to switch"
                         binding.layoutStatusBadge.visibility = View.VISIBLE
                         binding.tvStatusBadge.text = "Connected"
                         binding.viewStatusDot.backgroundTintList = ContextCompat.getColorStateList(this, R.color.primary_accent)
                         binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
+
+                        binding.layoutDrawerWifiFields.visibility = View.GONE
+                        binding.layoutDrawerBtFields.visibility = View.VISIBLE
+                        binding.tvDrawerBtDeviceName.text = "Connected: $name (Bluetooth HID)"
 
                         binding.layoutConnectionLostView.visibility = View.GONE
                         if (isPresentationMode) {
@@ -1114,7 +1163,7 @@ class MainActivity : AppCompatActivity() {
                             if (!isConnected) {
                                 binding.layoutStatusBadge.visibility = View.GONE
                                 binding.tvHeaderTitle.text = "Not Connected"
-                                binding.tvHeaderSubtitle.text = "Tap to connect"
+                                binding.tvHeaderSubtitle.text = "Tap to choose Bluetooth or Wi-Fi"
                             }
                         }
                     }

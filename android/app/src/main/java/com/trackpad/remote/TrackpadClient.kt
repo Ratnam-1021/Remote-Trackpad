@@ -1,7 +1,9 @@
 package com.trackpad.remote
 
+import android.os.SystemClock
 import android.util.Log
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
@@ -14,9 +16,18 @@ class TrackpadClient(
     private var socket: Socket? = null
     private var writer: BufferedWriter? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val sendChannel = Channel<String>(capacity = Channel.UNLIMITED)
+    private val sendChannel = Channel<String>(
+        capacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     private var isConnected = false
     private var workerJob: Job? = null
+
+    // Ultra-low latency Immediate-Dispatch Engine with sub-pixel accumulator matching Bluetooth HID
+    private var pendingMoveX = 0f
+    private var pendingMoveY = 0f
+    private val moveLock = Any()
+    private var lastSendTimeMs = 0L
 
     fun connect(host: String, port: Int) {
         scope.launch {
@@ -29,9 +40,13 @@ class TrackpadClient(
                 val newSocket = Socket()
                 // Connect with 3-second timeout
                 newSocket.connect(InetSocketAddress(host, port), 3000)
-                // Crucial for zero-latency: disable Nagle's algorithm
+                // Crucial for zero-latency: disable Nagle's algorithm & enable low delay
                 newSocket.tcpNoDelay = true
                 newSocket.keepAlive = true
+                try {
+                    newSocket.trafficClass = 0x10 // IPTOS_LOWDELAY
+                    newSocket.setPerformancePreferences(0, 1, 0)
+                } catch (_: Exception) {}
 
                 socket = newSocket
                 writer = BufferedWriter(OutputStreamWriter(newSocket.getOutputStream()))
@@ -57,8 +72,9 @@ class TrackpadClient(
         workerJob = scope.launch {
             try {
                 for (cmd in sendChannel) {
-                    writer?.write("$cmd\n")
-                    writer?.flush()
+                    val w = writer ?: break
+                    w.write("$cmd\n")
+                    w.flush()
                 }
             } catch (e: Exception) {
                 Log.e("TrackpadClient", "Worker send error", e)
@@ -76,7 +92,46 @@ class TrackpadClient(
     }
 
     fun sendMove(dx: Float, dy: Float) {
-        send("MOVE $dx $dy")
+        if (!isConnected) return
+        var toSendX = 0f
+        var toSendY = 0f
+        synchronized(moveLock) {
+            pendingMoveX += dx
+            pendingMoveY += dy
+            val now = SystemClock.uptimeMillis()
+            // Throttle to 4ms (~250Hz max) to prevent network congestion while matching high refresh screens
+            if (now - lastSendTimeMs < 4L) {
+                return
+            }
+            if (pendingMoveX != 0f || pendingMoveY != 0f) {
+                toSendX = pendingMoveX
+                toSendY = pendingMoveY
+                pendingMoveX = 0f
+                pendingMoveY = 0f
+                lastSendTimeMs = now
+            }
+        }
+        if (toSendX != 0f || toSendY != 0f) {
+            send("MOVE $toSendX $toSendY")
+        }
+    }
+
+    fun flushRemainder() {
+        if (!isConnected) return
+        var toSendX = 0f
+        var toSendY = 0f
+        synchronized(moveLock) {
+            if (pendingMoveX != 0f || pendingMoveY != 0f) {
+                toSendX = pendingMoveX
+                toSendY = pendingMoveY
+                pendingMoveX = 0f
+                pendingMoveY = 0f
+                lastSendTimeMs = SystemClock.uptimeMillis()
+            }
+        }
+        if (toSendX != 0f || toSendY != 0f) {
+            send("MOVE $toSendX $toSendY")
+        }
     }
 
     fun sendClick(button: String) {
