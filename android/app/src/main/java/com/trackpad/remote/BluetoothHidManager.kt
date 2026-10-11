@@ -122,38 +122,61 @@ class BluetoothHidManager(
     private var pendingDy = 0f
     private var pendingScroll = 0f
     private val movementLock = Any()
-    private var keepAliveJob: Job? = null
+    private var dispatchJob: Job? = null
     private var lastTargetDevice: BluetoothDevice? = null
     private var isUserDisconnected = false
 
-    // Hardware report throttle: 4ms (~250Hz) to prevent controller buffer congestion while matching 120Hz/90Hz touch sensors
-    private val MIN_REPORT_INTERVAL_MS = 4L
     @Volatile private var lastSendTimeMs = 0L
 
-    private fun startKeepAliveLoop() {
-        keepAliveJob?.cancel()
-        keepAliveJob = scope.launch(Dispatchers.IO) {
+    private fun startDispatchLoop() {
+        dispatchJob?.cancel()
+        dispatchJob = scope.launch(Dispatchers.IO) {
             while (isActive) {
-                delay(300)
                 val target = connectedDevice
                 val dev = hidDevice
                 if (target != null && dev != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    var shouldSend = false
+                    var sendX = 0
+                    var sendY = 0
+                    var sendWheel = 0
+                    val buttons = currentButtons
+
+                    synchronized(movementLock) {
+                        sendX = kotlin.math.round(pendingDx).toInt().coerceIn(-127, 127)
+                        sendY = kotlin.math.round(pendingDy).toInt().coerceIn(-127, 127)
+                        sendWheel = kotlin.math.round(pendingScroll).toInt().coerceIn(-127, 127)
+
+                        if (sendX != 0 || sendY != 0 || sendWheel != 0) {
+                            shouldSend = true
+                            pendingDx -= sendX
+                            pendingDy -= sendY
+                            pendingScroll -= sendWheel
+                        }
+                    }
+
                     val now = SystemClock.uptimeMillis()
-                    // Keep link active in Link State 0 (Active Mode) so macOS never drops to 30ms Sniff Mode
-                    if (now - lastSendTimeMs >= 280L) {
+                    if (shouldSend) {
                         try {
-                            val report = byteArrayOf(currentButtons, 0, 0, 0)
+                            val report = byteArrayOf(buttons, sendX.toByte(), sendY.toByte(), sendWheel.toByte())
                             dev.sendReport(target, REPORT_ID_MOUSE, report)
+                            lastSendTimeMs = now
+                        } catch (_: Exception) {}
+                    } else if (now - lastSendTimeMs >= 45L) {
+                        // Keep connection in Active Mode (Link State 0) so macOS/iOS never drops to 30ms-50ms Sniff Mode sleep
+                        try {
+                            val keepAliveReport = byteArrayOf(buttons, 0, 0, 0)
+                            dev.sendReport(target, REPORT_ID_MOUSE, keepAliveReport)
                             lastSendTimeMs = now
                         } catch (_: Exception) {}
                     }
                 }
+                delay(8) // 125Hz report clock (~8ms), matching Apple Magic Mouse Bluetooth polling interval
             }
         }
     }
 
     fun init() {
-        startKeepAliveLoop()
+        startDispatchLoop()
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             onSupportedState(false, "Bluetooth HID requires Android 9.0 or newer.")
@@ -219,9 +242,32 @@ class BluetoothHidManager(
             HID_REPORT_DESCRIPTOR
         )
 
+        val qosOut = try {
+            BluetoothHidDeviceAppQosSettings(
+                BluetoothHidDeviceAppQosSettings.SERVICE_GUARANTEED,
+                800,  // tokenRate (bytes/sec)
+                9,    // tokenBucketSize (bytes)
+                800,  // peakBandwidth (bytes/sec)
+                11250,// latency (11.25 ms = 88.8 Hz, Apple standard)
+                BluetoothHidDeviceAppQosSettings.MAX // delayVariation
+            )
+        } catch (_: Throwable) {
+            null
+        }
+
         try {
-            // Null QoS allows the Bluetooth HAL to negotiate native L2CAP parameters with macOS/Windows without token exhaustion
-            val registered = device.registerApp(sdpSettings, null, null, context.mainExecutor, hidCallback)
+            var registered = if (qosOut != null) {
+                try {
+                    device.registerApp(sdpSettings, null, qosOut, context.mainExecutor, hidCallback)
+                } catch (_: Exception) {
+                    false
+                }
+            } else false
+
+            if (!registered) {
+                registered = device.registerApp(sdpSettings, null, null, context.mainExecutor, hidCallback)
+            }
+
             if (registered) {
                 isRegistered = true
                 onSupportedState(true, "Bluetooth HID ready. Pair your computer via Bluetooth.")
@@ -333,36 +379,9 @@ class BluetoothHidManager(
     // MOUSE HID REPORTS
     // =========================================================================
     fun sendMouseMove(dx: Float, dy: Float) {
-        val target = connectedDevice ?: return
-        val dev = hidDevice ?: return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
-
         synchronized(movementLock) {
             pendingDx += dx
             pendingDy += dy
-
-            val now = SystemClock.uptimeMillis()
-            // Throttle to 4ms (250Hz max) to prevent Bluetooth buffer overflow while capturing every frame at 120Hz/90Hz
-            if (now - lastSendTimeMs < MIN_REPORT_INTERVAL_MS) {
-                return
-            }
-
-            val sendX = pendingDx.toInt().coerceIn(-127, 127)
-            val sendY = pendingDy.toInt().coerceIn(-127, 127)
-
-            if (sendX != 0 || sendY != 0) {
-                val report = byteArrayOf(currentButtons, sendX.toByte(), sendY.toByte(), 0)
-                val sent = try {
-                    dev.sendReport(target, REPORT_ID_MOUSE, report)
-                } catch (_: Exception) {
-                    false
-                }
-                if (sent) {
-                    pendingDx -= sendX
-                    pendingDy -= sendY
-                    lastSendTimeMs = now
-                }
-            }
         }
     }
 
@@ -372,9 +391,9 @@ class BluetoothHidManager(
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
 
         synchronized(movementLock) {
-            val sendX = pendingDx.toInt().coerceIn(-127, 127)
-            val sendY = pendingDy.toInt().coerceIn(-127, 127)
-            val sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
+            val sendX = kotlin.math.round(pendingDx).toInt().coerceIn(-127, 127)
+            val sendY = kotlin.math.round(pendingDy).toInt().coerceIn(-127, 127)
+            val sendWheel = kotlin.math.round(pendingScroll).toInt().coerceIn(-127, 127)
 
             if (sendX != 0 || sendY != 0 || sendWheel != 0) {
                 try {
@@ -434,30 +453,8 @@ class BluetoothHidManager(
     }
 
     fun sendScroll(scrollDy: Float) {
-        val target = connectedDevice ?: return
-        val dev = hidDevice ?: return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
-
         synchronized(movementLock) {
             pendingScroll += (scrollDy / 2.0f)
-            val now = SystemClock.uptimeMillis()
-            if (now - lastSendTimeMs < MIN_REPORT_INTERVAL_MS) {
-                return
-            }
-
-            val sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
-            if (sendWheel != 0) {
-                val report = byteArrayOf(currentButtons, 0, 0, sendWheel.toByte())
-                val sent = try {
-                    dev.sendReport(target, REPORT_ID_MOUSE, report)
-                } catch (_: Exception) {
-                    false
-                }
-                if (sent) {
-                    pendingScroll -= sendWheel
-                    lastSendTimeMs = now
-                }
-            }
         }
     }
 
@@ -606,7 +603,7 @@ class BluetoothHidManager(
         hidDevice = null
         connectedDevice = null
         isRegistered = false
-        keepAliveJob?.cancel()
+        dispatchJob?.cancel()
         scope.cancel()
     }
 }

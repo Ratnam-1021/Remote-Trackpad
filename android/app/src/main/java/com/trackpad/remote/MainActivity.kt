@@ -890,20 +890,26 @@ class MainActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_MOVE -> {
                     if (pointerCount == 1 && !isTwoFingerGesture) {
+                        val historySize = event.historySize
+                        for (i in 0 until historySize) {
+                            val hx = event.getHistoricalX(i)
+                            val hy = event.getHistoricalY(i)
+                            val hdx = hx - lastX
+                            val hdy = hy - lastY
+                            lastX = hx
+                            lastY = hy
+                            totalMovement += hypot(hdx, hdy)
+                            if (hdx != 0f || hdy != 0f) {
+                                dispatchMouseMove(hdx * sensitivity, hdy * sensitivity)
+                            }
+                        }
                         val dx = event.x - lastX
                         val dy = event.y - lastY
                         lastX = event.x
                         lastY = event.y
-
-                        val dist = hypot(dx, dy)
-                        totalMovement += dist
-
+                        totalMovement += hypot(dx, dy)
                         if (dx != 0f || dy != 0f) {
-                            // Smooth continuous acceleration matching physical mouse ballistic curve
-                            val factor = 1.0f + (dist / 80f).coerceAtMost(0.65f)
-                            val sendDx = dx * sensitivity * factor
-                            val sendDy = dy * sensitivity * factor
-                            dispatchMouseMove(sendDx, sendDy)
+                            dispatchMouseMove(dx * sensitivity, dy * sensitivity)
                         }
 
                     } else if (pointerCount >= 2) {
