@@ -116,7 +116,56 @@ class BluetoothHidManager(
     // State of mouse buttons (bit 0 = left, bit 1 = right, bit 2 = middle)
     private var currentButtons: Byte = 0
 
+    // High-performance 125Hz HID report accumulator (eliminates Binder IPC bottleneck)
+    private var pendingDx = 0f
+    private var pendingDy = 0f
+    private var pendingScroll = 0f
+    private val movementLock = Any()
+    private var dispatcherJob: Job? = null
+
+    private fun startDispatcherLoop() {
+        dispatcherJob?.cancel()
+        dispatcherJob = scope.launch(Dispatchers.IO) {
+            while (isActive) {
+                var sendX = 0
+                var sendY = 0
+                var sendWheel = 0
+                val target = connectedDevice
+                val dev = hidDevice
+
+                if (target != null && dev != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    synchronized(movementLock) {
+                        if (pendingDx != 0f || pendingDy != 0f || pendingScroll != 0f) {
+                            sendX = pendingDx.toInt().coerceIn(-127, 127)
+                            sendY = pendingDy.toInt().coerceIn(-127, 127)
+                            sendWheel = pendingScroll.toInt().coerceIn(-127, 127)
+
+                            pendingDx -= sendX
+                            pendingDy -= sendY
+                            pendingScroll -= sendWheel
+                        }
+                    }
+
+                    if (sendX != 0 || sendY != 0 || sendWheel != 0) {
+                        try {
+                            val report = byteArrayOf(
+                                currentButtons,
+                                sendX.toByte(),
+                                sendY.toByte(),
+                                sendWheel.toByte()
+                            )
+                            dev.sendReport(target, REPORT_ID_MOUSE, report)
+                        } catch (_: Exception) {}
+                    }
+                }
+                delay(8) // ~125Hz polling rate matches Apple Magic Mouse hardware rate
+            }
+        }
+    }
+
     fun init() {
+        startDispatcherLoop()
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             onSupportedState(false, "Bluetooth HID requires Android 9.0 or newer.")
             return
@@ -133,8 +182,16 @@ class BluetoothHidManager(
             return
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "BLUETOOTH_CONNECT permission not granted yet")
+                return
+            }
+        }
+
         try {
-            adapter.getProfileProxy(context, serviceListener, BluetoothProfile.HID_DEVICE)
+            val res = adapter.getProfileProxy(context, serviceListener, BluetoothProfile.HID_DEVICE)
+            Log.d(TAG, "getProfileProxy returned $res")
         } catch (e: Exception) {
             Log.e(TAG, "Error getting HID_DEVICE profile proxy", e)
             onSupportedState(false, "Bluetooth HID is unavailable on this device firmware.")
@@ -274,22 +331,11 @@ class BluetoothHidManager(
     // =========================================================================
     // MOUSE HID REPORTS
     // =========================================================================
-    @SuppressLint("MissingPermission")
     fun sendMouseMove(dx: Float, dy: Float) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
-        val target = connectedDevice ?: return
-
-        // Clamp to signed 8-bit (-127..127)
-        val clampedX = dx.toInt().coerceIn(-127, 127).toByte()
-        val clampedY = dy.toInt().coerceIn(-127, 127).toByte()
-
-        val report = byteArrayOf(
-            currentButtons,
-            clampedX,
-            clampedY,
-            0 // wheel
-        )
-        hidDevice?.sendReport(target, REPORT_ID_MOUSE, report)
+        synchronized(movementLock) {
+            pendingDx += dx
+            pendingDy += dy
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -336,14 +382,11 @@ class BluetoothHidManager(
         hidDevice?.sendReport(target, REPORT_ID_MOUSE, report)
     }
 
-    @SuppressLint("MissingPermission")
     fun sendScroll(scrollDy: Float) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
-        val target = connectedDevice ?: return
-
-        val wheel = (scrollDy / 2).toInt().coerceIn(-127, 127).toByte()
-        val report = byteArrayOf(currentButtons, 0, 0, wheel)
-        hidDevice?.sendReport(target, REPORT_ID_MOUSE, report)
+        synchronized(movementLock) {
+            // Smooth natural scrolling scale
+            pendingScroll += (scrollDy / 2.2f)
+        }
     }
 
     // =========================================================================
@@ -491,6 +534,7 @@ class BluetoothHidManager(
         hidDevice = null
         connectedDevice = null
         isRegistered = false
+        dispatcherJob?.cancel()
         scope.cancel()
     }
 }

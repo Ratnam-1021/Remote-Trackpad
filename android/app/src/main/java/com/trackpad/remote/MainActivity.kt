@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initVibrator()
-        touchSlop = ViewConfiguration.get(this).scaledTouchSlop
+        touchSlop = 4 // Minimal deadzone for instantaneous response
 
         loadPreferences()
         setupNetworkClient()
@@ -851,10 +851,11 @@ class MainActivity : AppCompatActivity() {
                         val dist = hypot(dx, dy)
                         totalMovement += dist
 
-                        if (totalMovement > touchSlop) {
+                        if (isDragging || totalMovement > 4f) {
                             isDragging = true
                             val distance = hypot(dx, dy)
-                            val factor = if (distance > 25f) 1.55f else 1.0f
+                            // Dynamic cursor acceleration curve matching Apple Magic Trackpad
+                            val factor = if (distance > 18f) 1.4f else 1.05f
                             val sendDx = dx * sensitivity * factor
                             val sendDy = dy * sensitivity * factor
                             dispatchMouseMove(sendDx, sendDy)
@@ -871,8 +872,8 @@ class MainActivity : AppCompatActivity() {
                         val scrollDx = avgX - lastScrollX
                         val scrollDy = avgY - lastScrollY
 
-                        if (hypot(scrollDx, scrollDy) > 2f) {
-                            dispatchScroll(scrollDx * 0.8f, scrollDy * 0.8f)
+                        if (hypot(scrollDx, scrollDy) > 1.2f) {
+                            dispatchScroll(scrollDx * 0.85f, scrollDy * 0.85f)
                         }
 
                         lastScrollX = avgX
