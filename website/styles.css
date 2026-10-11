@@ -292,13 +292,12 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
-  flex-wrap: wrap;
-  padding: 18px 24px;
+  gap: 32px;
+  padding: 18px 28px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  max-width: 880px;
+  max-width: 1020px;
   margin: 0 auto 80px;
   box-shadow: var(--shadow-card);
 }
@@ -310,10 +309,12 @@ body::after {
   font-size: 0.9rem;
   color: var(--text-secondary);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .trust-item svg {
   color: var(--accent-primary);
+  flex-shrink: 0;
 }
 
 /* App Mockup / Feature Showcase */
@@ -595,5 +596,23 @@ body::after {
   .footer-content {
     flex-direction: column;
     text-align: center;
+  }
+  .trust-bar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 24px;
+    max-width: 520px;
+    padding: 20px 24px;
+  }
+  .trust-item {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .trust-bar {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    max-width: 300px;
   }
 }
