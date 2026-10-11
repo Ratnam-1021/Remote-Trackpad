@@ -1,75 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/cardSystemItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/dock_btn_normal"
-    android:padding="12dp"
-    android:layout_marginBottom="8dp"
-    android:gravity="center_vertical"
-    android:clickable="true"
-    android:focusable="true">
-
-    <FrameLayout
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:background="@drawable/icon_squircle_bg">
-
-        <ImageView
-            android:id="@+id/ivSystemIcon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_laptop"
-            android:contentDescription="Computer" />
-    </FrameLayout>
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/cardSystemItem"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginStart="12dp"
-        android:orientation="vertical">
+        android:minHeight="54dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
-        <TextView
-            android:id="@+id/tvSystemName"
-            android:layout_width="wrap_content"
+        <!-- Device Type Icon (laptop, headphones, generic) -->
+        <ImageView
+            android:id="@+id/ivSystemIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_laptop"
+            android:contentDescription="Device"
+            android:tint="@color/text_secondary" />
+
+        <!-- Name & Detail Column -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Computer"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="6dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSystemName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Name"
+                android:textColor="@color/text_white"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvSystemIp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Subtext"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Connect Action Button (replaces the (i) info button) -->
+        <TextView
+            android:id="@+id/tvSystemActionBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/btn_device_connect_bg"
+            android:gravity="center"
+            android:paddingHorizontal="14dp"
+            android:text="Connect"
             android:textColor="@color/text_white"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvSystemIp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="10.90.63.215 · 8765"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
+        <!-- Optional Delete Button for Saved History -->
+        <ImageView
+            android:id="@+id/btnSystemDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:layout_marginStart="6dp"
+            android:src="@drawable/ic_trash"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Delete"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvSystemActionBadge"
-        android:layout_width="wrap_content"
-        android:layout_height="28dp"
-        android:background="@drawable/status_pill_bg"
-        android:gravity="center"
-        android:paddingHorizontal="10dp"
-        android:text="CONNECT"
-        android:textColor="@color/success_green"
-        android:textSize="11sp"
-        android:textStyle="bold" />
-
-    <ImageView
-        android:id="@+id/btnSystemDelete"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:padding="6dp"
-        android:layout_marginStart="6dp"
-        android:src="@drawable/ic_trash"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete saved device"
-        android:visibility="gone" />
+    <!-- Subtle Inset Divider (aligned with text) -->
+    <View
+        android:id="@+id/dividerBottom"
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:layout_marginStart="52dp"
+        android:background="@color/surface_border_subtle" />
 </LinearLayout>

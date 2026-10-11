@@ -241,11 +241,21 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
+                <!-- Grouped Card Container for Drawer Systems -->
                 <LinearLayout
-                    android:id="@+id/containerDrawerSystemsList"
+                    android:id="@+id/cardDrawerSystemsGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" />
+                    android:background="@drawable/card_group_bg"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:id="@+id/containerDrawerSystemsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -863,35 +873,44 @@
                 app:cornerRadius="14dp"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Paired Computers Section -->
+            <!-- Paired Devices Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Paired Computers (Tap to Connect)"
+                android:text="Paired devices"
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/tvBluetoothEmptyHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/dock_btn_normal"
-                android:padding="16dp"
-                android:text="No paired computers found.\n\nOpen Bluetooth on your Mac or PC, click 'Remote Trackpad', and pair once!"
+                android:background="@drawable/card_group_bg"
+                android:padding="20dp"
+                android:text="No paired devices found.\n\nOpen Bluetooth on your Mac or PC, click 'Remote Trackpad', and pair once!"
                 android:textColor="@color/text_muted"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="12dp" />
 
-            <!-- Container for paired Bluetooth devices -->
+            <!-- Grouped Card Container for paired Bluetooth devices -->
             <LinearLayout
-                android:id="@+id/containerBluetoothDevicesList"
+                android:id="@+id/cardBluetoothDevicesGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:background="@drawable/card_group_bg"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:id="@+id/containerBluetoothDevicesList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- ============================================================= -->
@@ -1020,10 +1039,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="Online Systems on Wi-Fi (Tap to Switch)"
-                    android:textColor="@color/success_green"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:text="Available devices"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvDiscoveredCount"
@@ -1053,20 +1071,29 @@
                 android:id="@+id/tvDiscoveredEmptyHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/dock_btn_normal"
-                android:padding="14dp"
+                android:background="@drawable/card_group_bg"
+                android:padding="20dp"
                 android:text="Searching for computers on your Wi-Fi running Remote Trackpad..."
                 android:textColor="@color/text_muted"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:gravity="center"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp" />
 
-            <!-- Container for all discovered computers -->
+            <!-- Grouped Card Container for Discovered Computers -->
             <LinearLayout
-                android:id="@+id/containerDiscoveredList"
+                android:id="@+id/cardDiscoveredGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:background="@drawable/card_group_bg"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:id="@+id/containerDiscoveredList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Recent Devices Section (Dynamic - populated from real connection history) -->
@@ -1075,23 +1102,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Recent Devices"
+                    android:text="Recent devices"
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:id="@+id/btnClearAllRecent"
@@ -1106,12 +1133,21 @@
                     android:focusable="true" />
             </LinearLayout>
 
-            <!-- Container for real recently connected computers -->
+            <!-- Grouped Card Container for Recent Computers -->
             <LinearLayout
-                android:id="@+id/containerRecentList"
+                android:id="@+id/cardRecentGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:background="@drawable/card_group_bg"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:id="@+id/containerRecentList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

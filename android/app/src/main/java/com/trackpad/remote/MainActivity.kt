@@ -607,22 +607,20 @@ class MainActivity : AppCompatActivity() {
                 val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerRecentList, false)
                 itemBinding.tvSystemName.text = name
                 itemBinding.tvSystemIp.text = "$ip · $port"
+                itemBinding.ivSystemIcon.setImageResource(R.drawable.ic_laptop)
+                itemBinding.dividerBottom.visibility = if (i == arr.length() - 1) View.GONE else View.VISIBLE
 
                 val isOnline = onlineDevices.any { it.ip == ip && it.port == port }
                 val isCurrentlyActive = isConnected && lastSavedIp == ip && lastSavedPort == port
 
                 if (isCurrentlyActive) {
-                    itemBinding.tvSystemActionBadge.text = "ACTIVE"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_active)
-                } else if (isOnline) {
-                    itemBinding.tvSystemActionBadge.text = "ONLINE"
+                    itemBinding.tvSystemActionBadge.text = "Connected"
                     itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_normal)
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connected_bg)
                 } else {
-                    itemBinding.tvSystemActionBadge.text = "SAVED"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_normal)
+                    itemBinding.tvSystemActionBadge.text = "Connect"
+                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_white))
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connect_bg)
                 }
 
                 // Delete option for saved devices
@@ -631,9 +629,11 @@ class MainActivity : AppCompatActivity() {
                     deleteRecentDevice(ip, port)
                 }
 
-                itemBinding.cardSystemItem.setOnClickListener {
+                val clickAction = View.OnClickListener {
                     connectToRecent(name, ip, port)
                 }
+                itemBinding.cardSystemItem.setOnClickListener(clickAction)
+                itemBinding.tvSystemActionBadge.setOnClickListener(clickAction)
 
                 binding.containerRecentList.addView(itemBinding.root)
             }
@@ -967,32 +967,39 @@ class MainActivity : AppCompatActivity() {
         if (devices.isEmpty()) {
             binding.tvDiscoveredCount.text = "Searching..."
             binding.tvDiscoveredEmptyHint.visibility = View.VISIBLE
+            binding.cardDiscoveredGroup.visibility = View.GONE
             binding.containerDiscoveredList.removeAllViews()
         } else {
             binding.tvDiscoveredCount.text = "${devices.size} online"
             binding.tvDiscoveredEmptyHint.visibility = View.GONE
+            binding.cardDiscoveredGroup.visibility = View.VISIBLE
             binding.containerDiscoveredList.removeAllViews()
 
-            for (device in devices) {
+            for ((index, device) in devices.withIndex()) {
                 val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerDiscoveredList, false)
                 val isCurrentTarget = isConnected && (device.ip == lastSavedIp && device.port == lastSavedPort)
 
                 itemBinding.tvSystemName.text = device.name
                 itemBinding.tvSystemIp.text = "${device.ip} · ${device.port} · ${device.os}"
+                itemBinding.ivSystemIcon.setImageResource(R.drawable.ic_laptop)
+                itemBinding.btnSystemDelete.visibility = View.GONE
+                itemBinding.dividerBottom.visibility = if (index == devices.size - 1) View.GONE else View.VISIBLE
 
                 if (isCurrentTarget) {
-                    itemBinding.tvSystemActionBadge.text = "CONNECTED"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_active)
-                } else {
-                    itemBinding.tvSystemActionBadge.text = "CONTROL"
+                    itemBinding.tvSystemActionBadge.text = "Connected"
                     itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_normal)
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connected_bg)
+                } else {
+                    itemBinding.tvSystemActionBadge.text = "Connect"
+                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_white))
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connect_bg)
                 }
 
-                itemBinding.cardSystemItem.setOnClickListener {
+                val switchAction = View.OnClickListener {
                     switchToSystem(device)
                 }
+                itemBinding.cardSystemItem.setOnClickListener(switchAction)
+                itemBinding.tvSystemActionBadge.setOnClickListener(switchAction)
 
                 binding.containerDiscoveredList.addView(itemBinding.root)
             }
@@ -1006,26 +1013,31 @@ class MainActivity : AppCompatActivity() {
             binding.layoutDrawerSwitchSection.visibility = View.VISIBLE
             binding.containerDrawerSystemsList.removeAllViews()
 
-            for (device in devices) {
+            for ((index, device) in devices.withIndex()) {
                 val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerDrawerSystemsList, false)
                 val isCurrentTarget = isConnected && (device.ip == lastSavedIp && device.port == lastSavedPort)
 
                 itemBinding.tvSystemName.text = device.name
                 itemBinding.tvSystemIp.text = "${device.ip} · ${device.port}"
+                itemBinding.ivSystemIcon.setImageResource(R.drawable.ic_laptop)
+                itemBinding.btnSystemDelete.visibility = View.GONE
+                itemBinding.dividerBottom.visibility = if (index == devices.size - 1) View.GONE else View.VISIBLE
 
                 if (isCurrentTarget) {
-                    itemBinding.tvSystemActionBadge.text = "ACTIVE"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_active)
+                    itemBinding.tvSystemActionBadge.text = "Active"
+                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connected_bg)
                 } else {
-                    itemBinding.tvSystemActionBadge.text = "SWITCH"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_normal)
+                    itemBinding.tvSystemActionBadge.text = "Connect"
+                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_white))
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connect_bg)
                 }
 
-                itemBinding.cardSystemItem.setOnClickListener {
+                val switchAction = View.OnClickListener {
                     switchToSystem(device)
                 }
+                itemBinding.cardSystemItem.setOnClickListener(switchAction)
+                itemBinding.tvSystemActionBadge.setOnClickListener(switchAction)
 
                 binding.containerDrawerSystemsList.addView(itemBinding.root)
             }
@@ -1125,37 +1137,56 @@ class MainActivity : AppCompatActivity() {
         val paired = bluetoothHidManager.getPairedDevices()
         if (paired.isEmpty()) {
             binding.tvBluetoothEmptyHint.visibility = View.VISIBLE
+            binding.cardBluetoothDevicesGroup.visibility = View.GONE
             binding.containerBluetoothDevicesList.removeAllViews()
         } else {
             binding.tvBluetoothEmptyHint.visibility = View.GONE
+            binding.cardBluetoothDevicesGroup.visibility = View.VISIBLE
             binding.containerBluetoothDevicesList.removeAllViews()
 
-            for (device in paired) {
+            for ((index, device) in paired.withIndex()) {
                 val itemBinding = ItemDiscoveredSystemBinding.inflate(layoutInflater, binding.containerBluetoothDevicesList, false)
-                val deviceName = try { device.name ?: device.address ?: "Computer" } catch (_: Exception) { device.address ?: "Computer" }
+                val deviceName = try { device.name ?: device.address ?: "Device" } catch (_: Exception) { device.address ?: "Device" }
                 itemBinding.tvSystemName.text = deviceName
-                itemBinding.tvSystemIp.text = "Bluetooth · ${device.address}"
+                itemBinding.tvSystemIp.visibility = View.GONE
                 itemBinding.btnSystemDelete.visibility = View.GONE
+                itemBinding.dividerBottom.visibility = if (index == paired.size - 1) View.GONE else View.VISIBLE
+
+                val lowerName = deviceName.lowercase()
+                val iconRes = when {
+                    lowerName.contains("buds") || lowerName.contains("headset") || lowerName.contains("headphone") ||
+                    lowerName.contains("earphone") || lowerName.contains("neckband") || lowerName.contains("soundcore") ||
+                    lowerName.contains("boat") || lowerName.contains("stone") || lowerName.contains("noise") ||
+                    lowerName.contains("enco") || lowerName.contains("bass") || lowerName.contains("speaker") ||
+                    lowerName.contains("audio") -> R.drawable.ic_headphones
+                    lowerName.contains("macbook") || lowerName.contains("laptop") || lowerName.contains("lapi") ||
+                    lowerName.contains("desktop") || lowerName.contains("computer") || lowerName.contains("pc") ||
+                    lowerName.contains("mac") || lowerName.contains("windows") -> R.drawable.ic_laptop
+                    else -> R.drawable.ic_bluetooth
+                }
+                itemBinding.ivSystemIcon.setImageResource(iconRes)
 
                 val isCurrent = isBluetoothConnected && bluetoothHidManager.getConnectedDeviceName() == deviceName
 
                 if (isCurrent) {
-                    itemBinding.tvSystemActionBadge.text = "ACTIVE"
-                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_active)
-                } else {
-                    itemBinding.tvSystemActionBadge.text = "CONNECT"
+                    itemBinding.tvSystemActionBadge.text = "Connected"
                     itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
-                    itemBinding.cardSystemItem.setBackgroundResource(R.drawable.dock_btn_normal)
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connected_bg)
+                } else {
+                    itemBinding.tvSystemActionBadge.text = "Connect"
+                    itemBinding.tvSystemActionBadge.setTextColor(ContextCompat.getColor(this, R.color.text_white))
+                    itemBinding.tvSystemActionBadge.setBackgroundResource(R.drawable.btn_device_connect_bg)
                 }
 
-                itemBinding.cardSystemItem.setOnClickListener {
+                val connectAction = View.OnClickListener {
                     vibrate(30)
                     activeConnectionMode = "bluetooth"
                     bluetoothHidManager.connectDevice(device)
                     Toast.makeText(this, "Connecting to $deviceName...", Toast.LENGTH_SHORT).show()
                     binding.layoutConnectScreen.visibility = View.GONE
                 }
+                itemBinding.cardSystemItem.setOnClickListener(connectAction)
+                itemBinding.tvSystemActionBadge.setOnClickListener(connectAction)
 
                 binding.containerBluetoothDevicesList.addView(itemBinding.root)
             }
