@@ -290,30 +290,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupHeaderInteractions() {
+        // Tapping the header row (laptop icon, titles, badge) always opens Connect to Mac (Bluetooth & Wi-Fi chooser)
         binding.headerSummaryRow.setOnClickListener {
-            val anyConnected = isConnected || isBluetoothConnected
-            if (anyConnected) {
-                // Toggle expanded drawer
-                isDrawerExpanded = !isDrawerExpanded
-                binding.layoutExpandedDrawer.visibility = if (isDrawerExpanded) View.VISIBLE else View.GONE
-                binding.btnHeaderChevron.setImageResource(
-                    if (isDrawerExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
-                )
-            } else {
-                openConnectScreen()
-                val currentInput = binding.etConnectIp.text.toString().trim()
-                val list = mutableListOf<String>()
-                if (currentInput.isNotEmpty()) list.add(currentInput)
-                if (lastSavedIp.isNotEmpty()) list.add(lastSavedIp)
-                discoveryManager.triggerImmediateProbe(list)
-            }
+            vibrate(25)
+            openConnectScreen()
+            val currentInput = binding.etConnectIp.text.toString().trim()
+            val list = mutableListOf<String>()
+            if (currentInput.isNotEmpty()) list.add(currentInput)
+            if (lastSavedIp.isNotEmpty()) list.add(lastSavedIp)
+            discoveryManager.triggerImmediateProbe(list)
         }
 
         binding.layoutStatusBadge.setOnClickListener {
             vibrate(25)
-            isDrawerExpanded = false
-            binding.layoutExpandedDrawer.visibility = View.GONE
-            binding.btnHeaderChevron.setImageResource(R.drawable.ic_chevron_down)
             openConnectScreen()
         }
 
@@ -325,8 +314,19 @@ class MainActivity : AppCompatActivity() {
             openConnectScreen()
         }
 
+        // The chevron specifically toggles the expanded drawer for speed adjustments
         binding.btnHeaderChevron.setOnClickListener {
-            binding.headerSummaryRow.performClick()
+            vibrate(20)
+            val anyConnected = isConnected || isBluetoothConnected
+            if (anyConnected) {
+                isDrawerExpanded = !isDrawerExpanded
+                binding.layoutExpandedDrawer.visibility = if (isDrawerExpanded) View.VISIBLE else View.GONE
+                binding.btnHeaderChevron.setImageResource(
+                    if (isDrawerExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
+                )
+            } else {
+                openConnectScreen()
+            }
         }
 
         binding.btnDrawerDisconnect.setOnClickListener {
