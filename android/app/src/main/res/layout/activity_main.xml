@@ -849,60 +849,6 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-            <!-- Hero Zero-Install Callout Card -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/dock_btn_normal"
-                android:padding="16dp"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_bluetooth"
-                        android:contentDescription="Bluetooth" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="10dp"
-                        android:text="Zero Software Required"
-                        android:textColor="@color/primary_accent"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvBluetoothStatusBadge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="26dp"
-                        android:background="@drawable/status_pill_bg"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:text="READY"
-                        android:textColor="@color/success_green"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Your phone acts as a real Bluetooth trackpad. No software, server, or Python required on your laptop!"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="2dp" />
-            </LinearLayout>
-
             <!-- Pair New Computer Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOpenBluetoothSettings"

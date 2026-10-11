@@ -1,9 +1,11 @@
 package com.trackpad.remote
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -20,6 +22,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.trackpad.remote.databinding.ActivityMainBinding
@@ -30,6 +33,10 @@ import kotlin.math.abs
 import kotlin.math.hypot
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val REQUEST_BT_PERMS = 101
+    }
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var client: TrackpadClient
@@ -93,8 +100,49 @@ class MainActivity : AppCompatActivity() {
         setupTouchpadGesture()
         setupPresentationGestures()
 
+        checkAndRequestBluetoothPermissions()
+
         if (autoConnectEnabled && lastSavedIp.isNotEmpty()) {
             client.connect(lastSavedIp, lastSavedPort)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::bluetoothHidManager.isInitialized) {
+            renderBluetoothDevices()
+        }
+    }
+
+    private fun checkAndRequestBluetoothPermissions(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val permissions = arrayOf(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_SCAN
+            )
+            val missing = permissions.filter {
+                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            }
+            if (missing.isNotEmpty()) {
+                ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQUEST_BT_PERMS)
+                return false
+            }
+        }
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_BT_PERMS) {
+            val allGranted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (allGranted) {
+                bluetoothHidManager.init()
+                renderBluetoothDevices()
+                Toast.makeText(this, "Bluetooth permissions granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Nearby device permission is needed for Bluetooth mode", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -428,7 +476,11 @@ class MainActivity : AppCompatActivity() {
 
             binding.layoutBluetoothContent.visibility = View.VISIBLE
             binding.layoutWifiContent.visibility = View.GONE
-            renderBluetoothDevices()
+
+            if (checkAndRequestBluetoothPermissions()) {
+                bluetoothHidManager.init()
+                renderBluetoothDevices()
+            }
         }
 
         binding.btnTabWifi.setOnClickListener {
@@ -444,6 +496,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnOpenBluetoothSettings.setOnClickListener {
             vibrate(25)
+            if (!checkAndRequestBluetoothPermissions()) {
+                return@setOnClickListener
+            }
             try {
                 val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
                 startActivity(intent)
@@ -1029,8 +1084,6 @@ class MainActivity : AppCompatActivity() {
                         binding.tvStatusBadge.text = "Connected"
                         binding.viewStatusDot.backgroundTintList = ContextCompat.getColorStateList(this, R.color.primary_accent)
                         binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
-                        binding.tvBluetoothStatusBadge.text = "CONNECTED"
-                        binding.tvBluetoothStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.primary_accent))
 
                         binding.layoutConnectionLostView.visibility = View.GONE
                         if (isPresentationMode) {
@@ -1044,8 +1097,6 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, "Connected via Bluetooth to $name", Toast.LENGTH_SHORT).show()
                     } else {
                         if (activeConnectionMode == "bluetooth") {
-                            binding.tvBluetoothStatusBadge.text = "READY"
-                            binding.tvBluetoothStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
                             if (!isConnected) {
                                 binding.layoutStatusBadge.visibility = View.GONE
                                 binding.tvHeaderTitle.text = "Not Connected"
@@ -1058,15 +1109,8 @@ class MainActivity : AppCompatActivity() {
             },
             onSupportedState = { supported, message ->
                 runOnUiThread {
-                    if (!supported) {
-                        binding.tvBluetoothStatusBadge.text = "UNSUPPORTED"
-                        binding.tvBluetoothStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.error_red))
-                        // Auto fallback to Wi-Fi if phone hardware doesn't support Bluetooth HID peripheral mode
-                        binding.btnTabWifi.performClick()
-                        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                    } else {
-                        binding.tvBluetoothStatusBadge.text = "READY"
-                        binding.tvBluetoothStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.success_green))
+                    if (!supported && message.isNotEmpty()) {
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
