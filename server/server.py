@@ -413,6 +413,11 @@ def print_banner(ip, port):
 
 def handle_client(conn, addr):
     print(f"[+] Connected to Android client at {addr[0]}:{addr[1]}")
+    if client_status_callback:
+        try:
+            client_status_callback(f"● Connected: {addr[0]}")
+        except Exception:
+            pass
     conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     buffer = ""
@@ -498,8 +503,67 @@ def handle_client(conn, addr):
             pass
         conn.close()
         print(f"[-] Client {addr[0]} disconnected. Waiting for reconnection...\n")
+        if client_status_callback:
+            try:
+                client_status_callback("Waiting for mobile connection...")
+            except Exception:
+                pass
 
-def start_server():
+client_status_callback = None
+
+def run_gui(ip, port, shutdown_func):
+    try:
+        import tkinter as tk
+
+        root = tk.Tk()
+        root.title("BlanketCozzy Companion")
+        root.geometry("380x300")
+        root.resizable(False, False)
+        root.configure(bg="#F0F4F9")
+
+        container = tk.Frame(root, bg="#FFFFFF", bd=1, relief="solid", highlightthickness=0)
+        container.place(relx=0.5, rely=0.5, anchor="center", width=340, height=260)
+
+        title_label = tk.Label(container, text="BlanketCozzy", font=("Helvetica", 16, "bold"), bg="#FFFFFF", fg="#0F172A")
+        title_label.pack(pady=(18, 2))
+
+        sub_label = tk.Label(container, text="TrackPad Desktop Companion", font=("Helvetica", 9), bg="#FFFFFF", fg="#64748B")
+        sub_label.pack(pady=(0, 14))
+
+        badge_frame = tk.Frame(container, bg="#EBF1F7", padx=10, pady=6)
+        badge_frame.pack(fill="x", padx=20, pady=4)
+
+        status_dot = tk.Label(badge_frame, text="●", font=("Helvetica", 11), bg="#EBF1F7", fg="#10B981")
+        status_dot.pack(side="left", padx=(4, 6))
+
+        status_text = tk.Label(badge_frame, text=f"Server Active · {ip}:{port}", font=("Courier", 10, "bold"), bg="#EBF1F7", fg="#0F172A")
+        status_text.pack(side="left")
+
+        conn_label = tk.Label(container, text="Waiting for mobile connection...", font=("Helvetica", 9), bg="#FFFFFF", fg="#64748B")
+        conn_label.pack(pady=12)
+
+        global client_status_callback
+        def update_client_status(msg):
+            try:
+                conn_label.config(text=msg)
+            except Exception:
+                pass
+        client_status_callback = update_client_status
+
+        def on_quit():
+            shutdown_func()
+            root.destroy()
+            sys.exit(0)
+
+        quit_btn = tk.Button(container, text="Stop Server & Quit", font=("Helvetica", 9, "bold"), bg="#F1F5F9", fg="#EF4444", activebackground="#FEE2E2", activeforeground="#DC2626", relief="flat", command=on_quit, cursor="hand2")
+        quit_btn.pack(pady=(6, 12))
+
+        root.protocol("WM_DELETE_WINDOW", on_quit)
+        root.mainloop()
+    except Exception as e:
+        print(f"[!] GUI fallback to console: {e}")
+
+def start_server(gui=True):
     ip = get_local_ip()
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -514,18 +578,48 @@ def start_server():
     start_discovery_beacon(ip, PORT)
     print_banner(ip, PORT)
 
-    while True:
-        try:
-            conn, addr = server_sock.accept()
-            client_thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
-            client_thread.start()
-        except KeyboardInterrupt:
-            print("\nShutting down server.")
-            break
-        except Exception as e:
-            print(f"[!] Socket error: {e}")
+    is_running = [True]
 
-    server_sock.close()
+    def accept_loop():
+        while is_running[0]:
+            try:
+                server_sock.settimeout(1.0)
+                try:
+                    conn, addr = server_sock.accept()
+                except socket.timeout:
+                    continue
+                client_thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
+                client_thread.start()
+            except Exception as e:
+                if is_running[0]:
+                    print(f"[!] Socket error: {e}")
+                break
+
+    server_thread = threading.Thread(target=accept_loop, daemon=True)
+    server_thread.start()
+
+    def shutdown():
+        is_running[0] = False
+        try:
+            server_sock.close()
+        except Exception:
+            pass
+
+    use_gui = gui and ("--cli" not in sys.argv) and ("--headless" not in sys.argv)
+    if use_gui:
+        try:
+            run_gui(ip, PORT, shutdown)
+            return
+        except Exception:
+            pass
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nShutting down server.")
+    finally:
+        shutdown()
 
 if __name__ == "__main__":
     start_server()
