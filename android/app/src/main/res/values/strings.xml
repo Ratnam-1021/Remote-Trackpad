@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Remote Trackpad</string>
+    <string name="app_name">BlanketCozzy - TrackPad</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
     <string name="connected">Connected</string>

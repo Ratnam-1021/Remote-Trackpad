@@ -1,6 +1,6 @@
-# <img src="android/app/src/main/res/drawable/app_logo.png" width="40" height="40" align="center" style="border-radius: 9px;" /> Remote Trackpad (Cozy Blanket Edition)
+# <img src="android/app/src/main/res/drawable/app_logo.png" width="40" height="40" align="center" style="border-radius: 9px;" /> BlanketCozzy - TrackPad
 
-A lightweight, zero-latency Wi-Fi trackpad app that turns your Android phone into a full-featured trackpad for your laptop (Mac or Windows). Perfect for cozy bed & blanket sessions where reaching for the physical trackpad is uncomfortable.
+A lightweight, zero-latency Wi-Fi trackpad app that turns your phone into a full-featured trackpad for your laptop (Mac or Windows). *Your Mac & PC, comfortably in control.* Perfect for cozy bed & blanket sessions where reaching for the physical trackpad is uncomfortable.
 
 ---
 
