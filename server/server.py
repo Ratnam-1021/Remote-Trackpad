@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-BlanketCozzy - TrackPad Companion (macOS & Windows)
-Your Mac & PC, comfortably in control. Native input over local Wi-Fi.
+BlanketCozzy - TrackPad Companion (Windows & macOS)
+Your computer, comfortably in control. Native input over local Wi-Fi.
 Features automatic Keynote / PowerPoint / Slides detection!
 """
 
@@ -391,7 +391,7 @@ def start_discovery_beacon(local_ip, port):
 def print_banner(ip, port):
     print("=" * 65)
     print("🛌 BlanketCozzy - TrackPad Desktop Companion")
-    print("   Your Mac & PC, comfortably in control.")
+    print("   Your computer, comfortably in control.")
     print("=" * 65)
     print(f"OS             : {platform.system()} ({platform.release()})")
     print(f"Server Address : {ip}:{port}")
