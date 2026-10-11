@@ -122,10 +122,13 @@ class BluetoothHidManager(
     private var pendingScroll = 0f
     private val movementLock = Any()
     private var dispatcherJob: Job? = null
+    private var lastTargetDevice: BluetoothDevice? = null
+    private var isUserDisconnected = false
 
     private fun startDispatcherLoop() {
         dispatcherJob?.cancel()
         dispatcherJob = scope.launch(Dispatchers.IO) {
+            var lastReportTime = System.currentTimeMillis()
             while (isActive) {
                 var sendX = 0
                 var sendY = 0
@@ -146,7 +149,10 @@ class BluetoothHidManager(
                         }
                     }
 
-                    if (sendX != 0 || sendY != 0 || sendWheel != 0) {
+                    val now = System.currentTimeMillis()
+                    val hasMovement = sendX != 0 || sendY != 0 || sendWheel != 0
+                    // Send report if movement occurred OR every 1.5s as keep-alive heartbeat to prevent host timeout
+                    if (hasMovement || (now - lastReportTime >= 1500L)) {
                         try {
                             val report = byteArrayOf(
                                 currentButtons,
@@ -155,6 +161,7 @@ class BluetoothHidManager(
                                 sendWheel.toByte()
                             )
                             dev.sendReport(target, REPORT_ID_MOUSE, report)
+                            lastReportTime = now
                         } catch (_: Exception) {}
                     }
                 }
@@ -230,17 +237,9 @@ class BluetoothHidManager(
             HID_REPORT_DESCRIPTOR
         )
 
-        val qosSettings = BluetoothHidDeviceAppQosSettings(
-            BluetoothHidDeviceAppQosSettings.SERVICE_BEST_EFFORT,
-            800,
-            9,
-            0,
-            11250,
-            BluetoothHidDeviceAppQosSettings.MAX
-        )
-
         try {
-            val registered = device.registerApp(sdpSettings, qosSettings, null, context.mainExecutor, hidCallback)
+            // Null QoS allows the Bluetooth HAL to negotiate native L2CAP parameters with macOS/Windows without token exhaustion
+            val registered = device.registerApp(sdpSettings, null, null, context.mainExecutor, hidCallback)
             if (registered) {
                 isRegistered = true
                 onSupportedState(true, "Bluetooth HID ready. Pair your computer via Bluetooth.")
@@ -260,6 +259,8 @@ class BluetoothHidManager(
                 isRegistered = registered
                 if (registered && pluggedDevice != null) {
                     connectedDevice = pluggedDevice
+                    lastTargetDevice = pluggedDevice
+                    isUserDisconnected = false
                     onConnectionStateChanged(true, pluggedDevice.name ?: pluggedDevice.address)
                 }
             }
@@ -269,12 +270,27 @@ class BluetoothHidManager(
                 when (state) {
                     BluetoothProfile.STATE_CONNECTED -> {
                         connectedDevice = device
+                        lastTargetDevice = device
+                        isUserDisconnected = false
                         onConnectionStateChanged(true, device?.name ?: device?.address)
                     }
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         if (connectedDevice == device) {
                             connectedDevice = null
                             onConnectionStateChanged(false, null)
+                            // If disconnection was unexpected, attempt auto-reconnect
+                            if (!isUserDisconnected && lastTargetDevice != null) {
+                                scope.launch {
+                                    delay(1500)
+                                    if (connectedDevice == null && !isUserDisconnected && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                        lastTargetDevice?.let { target ->
+                                            try {
+                                                hidDevice?.connect(target)
+                                            } catch (_: Exception) {}
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -308,12 +324,15 @@ class BluetoothHidManager(
     @SuppressLint("MissingPermission")
     fun connectDevice(device: BluetoothDevice) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            isUserDisconnected = false
+            lastTargetDevice = device
             hidDevice?.connect(device)
         }
     }
 
     @SuppressLint("MissingPermission")
     fun disconnectDevice() {
+        isUserDisconnected = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             connectedDevice?.let { hidDevice?.disconnect(it) }
         }
