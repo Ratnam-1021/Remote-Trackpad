@@ -83,6 +83,8 @@ class MainActivity : AppCompatActivity() {
 
         loadPreferences()
         setupNetworkClient()
+        setupBluetoothHid()
+        setupDiscovery()
         setupHeaderInteractions()
         setupDockBar()
         setupConnectScreen()
@@ -90,8 +92,6 @@ class MainActivity : AppCompatActivity() {
         setupSettingsScreen()
         setupTouchpadGesture()
         setupPresentationGestures()
-        setupDiscovery()
-        setupBluetoothHid()
 
         if (autoConnectEnabled && lastSavedIp.isNotEmpty()) {
             client.connect(lastSavedIp, lastSavedPort)
@@ -1076,6 +1076,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun renderBluetoothDevices() {
+        if (!::bluetoothHidManager.isInitialized) return
         val paired = bluetoothHidManager.getPairedDevices()
         if (paired.isEmpty()) {
             binding.tvBluetoothEmptyHint.visibility = View.VISIBLE
