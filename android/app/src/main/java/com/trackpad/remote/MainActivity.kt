@@ -853,11 +853,15 @@ class MainActivity : AppCompatActivity() {
                         val dist = hypot(dx, dy)
                         totalMovement += dist
 
-                        if (isDragging || totalMovement > 4f) {
-                            isDragging = true
-                            val distance = hypot(dx, dy)
-                            // Dynamic cursor acceleration curve matching Apple Magic Trackpad
-                            val factor = if (distance > 18f) 1.4f else 1.05f
+                        // Zero-deadzone: Instant cursor response on the very first pixel!
+                        if (dist > 0.3f) {
+                            // Dynamic velocity acceleration matching Apple Magic Trackpad
+                            val factor = when {
+                                dist > 25f -> 1.45f
+                                dist > 14f -> 1.30f
+                                dist > 5f  -> 1.15f
+                                else       -> 1.05f
+                            }
                             val sendDx = dx * sensitivity * factor
                             val sendDy = dy * sensitivity * factor
                             dispatchMouseMove(sendDx, sendDy)
@@ -874,8 +878,8 @@ class MainActivity : AppCompatActivity() {
                         val scrollDx = avgX - lastScrollX
                         val scrollDy = avgY - lastScrollY
 
-                        if (hypot(scrollDx, scrollDy) > 1.2f) {
-                            dispatchScroll(scrollDx * 0.85f, scrollDy * 0.85f)
+                        if (hypot(scrollDx, scrollDy) > 0.8f) {
+                            dispatchScroll(scrollDx * 0.9f, scrollDy * 0.9f)
                         }
 
                         lastScrollX = avgX
@@ -887,7 +891,7 @@ class MainActivity : AppCompatActivity() {
                 MotionEvent.ACTION_POINTER_UP -> {
                     if (pointerCount == 2 && isTwoFingerGesture) {
                         val duration = System.currentTimeMillis() - downTime
-                        if (duration < 280 && totalMovement < touchSlop * 2) {
+                        if (duration < 280 && totalMovement < 16f) {
                             vibrate(30)
                             dispatchMouseClick("right")
                         }
@@ -897,13 +901,11 @@ class MainActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     val duration = System.currentTimeMillis() - downTime
-                    if (!isTwoFingerGesture && !isDragging && duration < 240) {
+                    if (!isTwoFingerGesture && totalMovement < 10f && duration < 260) {
                         vibrate(20)
                         dispatchMouseClick("left")
-                    } else if (isDragging) {
-                        dispatchMouseUp("left")
                     }
-                    isDragging = false
+                    totalMovement = 0f
                     isTwoFingerGesture = false
                     true
                 }
