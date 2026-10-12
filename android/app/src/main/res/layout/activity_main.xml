@@ -837,7 +837,68 @@
                 android:contentDescription="Settings" />
         </LinearLayout>
 
-        <!-- Scrollable Content Container for Wi-Fi Systems List -->
+        <!-- Connection Mode Segmented Switcher (Wi-Fi vs Bluetooth) -->
+        <LinearLayout
+            android:id="@+id/segmentedModeSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_group_bg"
+            android:padding="4dp"
+            android:layout_marginBottom="16dp">
+
+            <!-- Wi-Fi Tab Button -->
+            <LinearLayout
+                android:id="@+id/tabModeWifi"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/dock_btn_active"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tvTabModeWifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📡 Wi-Fi Network"
+                    android:textColor="@color/text_white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Bluetooth Tab Button -->
+            <LinearLayout
+                android:id="@+id/tabModeBluetooth"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/ivTabBluetoothIcon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_bluetooth"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvTabModeBluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bluetooth HID"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Scrollable Content Container for Wi-Fi / Bluetooth Systems List -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -1121,7 +1182,181 @@
                     android:backgroundTint="@color/primary_accent"
                     app:cornerRadius="12dp" />
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- BLUETOOTH CONTENT (Native Bluetooth HID Device Mode)         -->
+        <!-- ============================================================= -->
+        <LinearLayout
+            android:id="@+id/layoutBluetoothContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Primary Action Buttons: Refresh & Pair New Device -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScanBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="10dp"
+                android:text="🔄 Refresh Paired Computers"
+                android:textColor="@color/text_white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/primary_accent"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPairNewBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginBottom="20dp"
+                android:text="➕ Pair New Computer (Bluetooth Settings)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/surface_dark"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="12dp" />
+
+            <!-- 1. Available / Paired Bluetooth Devices Section -->
+            <LinearLayout
+                android:id="@+id/layoutBluetoothSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:background="@drawable/dock_btn_active"
+                        android:backgroundTint="@color/primary_accent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Paired computers"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvBluetoothCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ready"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/btnScanBluetoothAgain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="🔄 Refresh"
+                        android:textColor="@color/primary_accent"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBluetoothEmptyHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_group_bg"
+                    android:padding="20dp"
+                    android:text="No paired computers found.\nPut your computer in Bluetooth discovery and pair in Settings."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Grouped Card Container for Paired Bluetooth Computers -->
+                <LinearLayout
+                    android:id="@+id/cardBluetoothGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_group_bg"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/containerBluetoothList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 2. Bluetooth HID Overview & Hardware Emulation Card -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About Bluetooth HID mode"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_group_bg"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvBluetoothStatusHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ Pure Native Hardware Emulation"
+                    android:textColor="@color/text_white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvBluetoothStatusDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your phone acts as a real wireless Bluetooth Magic Mouse &amp; Keyboard. No companion desktop software or drivers needed on your Mac, Windows, or Linux PC."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginBottom="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBluetoothActionHelper"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:text="📱 Open Phone Bluetooth Settings"
+                    android:textColor="@color/text_white"
+                    android:textSize="13sp"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/surface_dark"
+                    app:strokeColor="@color/surface_border"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="10dp" />
+            </LinearLayout>
+        </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

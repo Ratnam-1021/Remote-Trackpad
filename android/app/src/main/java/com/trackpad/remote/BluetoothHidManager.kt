@@ -124,9 +124,24 @@ class BluetoothHidManager(
     private val movementLock = Any()
     private var dispatchJob: Job? = null
     private var lastTargetDevice: BluetoothDevice? = null
+    private var pendingConnectDevice: BluetoothDevice? = null
     private var isUserDisconnected = false
 
     @Volatile private var lastSendTimeMs = 0L
+
+    fun isBluetoothSupported(): Boolean = bluetoothAdapter != null
+
+    fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
+
+    fun hasPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
+    fun getConnectedDevice(): BluetoothDevice? = connectedDevice
 
     private fun startDispatchLoop() {
         dispatchJob?.cancel()
@@ -136,9 +151,9 @@ class BluetoothHidManager(
                 val dev = hidDevice
                 if (target != null && dev != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     var shouldSend = false
-                    var sendX = 0
-                    var sendY = 0
-                    var sendWheel = 0
+                    val sendX: Int
+                    val sendY: Int
+                    val sendWheel: Int
                     val buttons = currentButtons
 
                     synchronized(movementLock) {
@@ -191,6 +206,11 @@ class BluetoothHidManager(
 
         if (!adapter.isEnabled) {
             onSupportedState(false, "Please turn on Bluetooth on your phone.")
+            return
+        }
+
+        if (isRegistered && hidDevice != null) {
+            onSupportedState(true, "Bluetooth HID ready. Pair your computer via Bluetooth.")
             return
         }
 
@@ -285,6 +305,12 @@ class BluetoothHidManager(
             @SuppressLint("MissingPermission")
             override fun onAppStatusChanged(pluggedDevice: BluetoothDevice?, registered: Boolean) {
                 isRegistered = registered
+                if (registered) {
+                    pendingConnectDevice?.let { pending ->
+                        hidDevice?.connect(pending)
+                        pendingConnectDevice = null
+                    }
+                }
                 if (registered && pluggedDevice != null) {
                     connectedDevice = pluggedDevice
                     lastTargetDevice = pluggedDevice
@@ -354,7 +380,13 @@ class BluetoothHidManager(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             isUserDisconnected = false
             lastTargetDevice = device
-            hidDevice?.connect(device)
+            pendingConnectDevice = device
+            val dev = hidDevice
+            if (dev != null && isRegistered) {
+                dev.connect(device)
+            } else {
+                init()
+            }
         }
     }
 
