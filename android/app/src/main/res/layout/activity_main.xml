@@ -59,7 +59,9 @@
                     android:text="Not Connected"
                     android:textColor="@color/text_white"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tvHeaderSubtitle"
@@ -68,7 +70,9 @@
                     android:layout_marginTop="2dp"
                     android:text="Tap to connect"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
             </LinearLayout>
 
             <!-- Status Badge (Connected / Disconnected) -->

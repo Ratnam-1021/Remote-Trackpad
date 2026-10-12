@@ -387,36 +387,42 @@ p {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .phone-device-icon {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .phone-device-name {
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 600;
   color: #FFFFFF;
-  line-height: 1.1;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .phone-device-sub {
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   color: #94A3B8;
+  white-space: nowrap;
 }
 
 .phone-status-pill {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.62rem;
+  gap: 3.5px;
+  font-size: 0.52rem;
   font-weight: 600;
   color: #4ADE80;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-dot-live {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #22C55E;
 }
