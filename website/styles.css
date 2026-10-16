@@ -313,6 +313,46 @@ p {
   gap: 4px;
   font-size: 0.82rem;
   color: var(--text-muted);
+  margin-top: 20px;
+}
+
+/* Trust Strip */
+.trust-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.trust-item svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.trust-link {
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.trust-link:hover {
+  color: var(--accent);
+}
+
+.trust-sep {
+  color: var(--text-muted);
+  user-select: none;
 }
 
 .platform-label {
@@ -1052,9 +1092,9 @@ p {
   color: var(--text-muted);
 }
 
-/* ========================================================================= */
-/* FOOTER                                                                    */
-/* ========================================================================= */
+/* =========================================================================
+ * FOOTER
+ * ========================================================================= */
 .footer {
   border-top: 1px solid var(--border-subtle);
   padding: 32px 0;
@@ -1089,6 +1129,34 @@ p {
 
 .footer-links a:hover {
   color: var(--text-primary);
+}
+
+.footer-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Download footnote */
+.download-footnote {
+  margin-top: 20px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.github-link:hover {
+  color: var(--accent);
 }
 
 /* ========================================================================= */
@@ -1177,11 +1245,15 @@ p {
   .hero-actions {
     justify-content: center;
   }
-  
-  .hero-platforms {
+
+  .trust-strip {
     justify-content: center;
   }
-  
+
+  .hero-platforms {
+    align-items: center;
+  }
+
   .flow-pipeline {
     grid-template-columns: 1fr;
   }
@@ -1239,5 +1311,19 @@ p {
   .footer-content {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* =========================================================================
+ * REDUCED MOTION — accessibility
+ * ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
