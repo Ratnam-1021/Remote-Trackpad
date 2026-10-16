@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlanketCozzy - Trackpad — Wireless Trackpad & Presentation Clicker</title>
-  <meta name="description" content="Turn your phone into a wireless trackpad & presentation clicker with BlanketCozzy - Trackpad. Sub-5ms cursor navigation. No cloud. No account. Works on macOS and Windows.">
-  <meta name="theme-color" content="#F0F4F9">
+  <title>BlanketCozzy - Trackpad — Wireless Trackpad &amp; Presentation Clicker</title>
+  <meta name="description" content="Turn your phone into a wireless trackpad &amp; clicker with BlanketCozzy - Trackpad. Smooth control, native gestures, presentation tools. Works with macOS and Windows.">
+  <meta name="theme-color" content="#F8FAFC">
 
   <!-- Open Graph / Social Meta -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="BlanketCozzy - Trackpad — Wireless Trackpad & Presentation Clicker">
+  <meta property="og:title" content="BlanketCozzy - Trackpad — Wireless Trackpad &amp; Presentation Clicker">
   <meta property="og:description" content="Turn your phone into a wireless trackpad with sub-5ms cursor navigation. No cloud relay, no account required. macOS and Windows.">
   <meta property="og:url" content="https://remote-trackpad-website.vercel.app">
 
@@ -20,7 +20,9 @@
 </head>
 <body>
 
-  <!-- Navigation -->
+  <!-- ========================================================================= -->
+  <!-- 1. NAVIGATION BAR                                                         -->
+  <!-- ========================================================================= -->
   <header class="navbar">
     <div class="container nav-container">
       <a href="/" class="logo-group">
@@ -29,386 +31,681 @@
         </div>
         <div class="logo-title-group">
           <span class="logo-text">BlanketCozzy</span>
-          <span class="logo-sub">Trackpad</span>
+          <span class="logo-divider">--</span>
+          <span class="logo-sub">TrackPad</span>
         </div>
       </a>
 
       <nav aria-label="Main navigation">
         <ul class="nav-links">
-          <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#download" class="btn-nav">Download</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#download">Download</a></li>
         </ul>
       </nav>
+
+      <div class="nav-cta">
+        <a href="#download" class="btn btn-pill-dark btn-nav">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download</span>
+        </a>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- Hero Section -->
+    <!-- ========================================================================= -->
+    <!-- 2. HERO SECTION                                                           -->
+    <!-- ========================================================================= -->
     <section class="hero" aria-labelledby="hero-heading">
-      <div class="container hero-grid">
+      <div class="hero-stage" id="heroStage">
+        <!-- Pristine Photorealistic Studio Backdrop (Phone, Laptop, Desk & Lighting) -->
+        <img 
+          src="assets/hero_panoramic_clean@2x.jpg" 
+          alt="BlanketCozzy - Trackpad wireless phone control connected to MacBook on studio desk" 
+          class="hero-stage-bg" 
+          width="2880" 
+          height="980"
+          loading="eager"
+          fetchpriority="high"
+        >
 
-        <!-- Left Column: Copy & Actions -->
-        <div class="hero-content">
+        <!-- Stage Foreground Content Container -->
+        <div class="container hero-stage-content">
+          <!-- Left Column: Copy & Actions & Feature Highlights -->
+          <div class="hero-copy-column">
+              <div class="hero-eyebrow">YOUR PHONE. YOUR TRACKPAD.</div>
 
-          <h1 id="hero-heading" class="hero-title">
-            Turn your phone into a <span class="text-accent">wireless trackpad</span> &amp; clicker.
-          </h1>
+              <h1 id="hero-heading" class="hero-title">
+                Turn your phone into a<br>
+                <strong>wireless trackpad &amp; clicker</strong>
+              </h1>
 
-          <p class="hero-subtitle">
-            Silky sub-5ms cursor navigation, two-finger scrolling, and presentation controls. Connects directly to your computer — no cloud relay, no account.
-          </p>
+              <p class="hero-subtitle">
+                Smooth control. Native gestures. Presentation tools.<br>
+                All over your local network. No cloud. No account. Just pure convenience.
+              </p>
 
-          <div class="hero-actions">
-            <a href="#download" class="btn btn-primary" id="hero-cta-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Trackpad
-            </a>
-            <a href="#how-it-works" class="btn btn-secondary" id="hero-cta-secondary">
-              See How It Works
-            </a>
-          </div>
+              <div class="hero-actions">
+                <a href="downloads/BlanketCozzy-macOS.dmg" class="btn btn-pill-dark btn-hero-macos" download="BlanketCozzy-macOS.dmg" id="hero-macos-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.66-.99 1.72-.86 2.74 1.01.08 2.01-.54 2.57-1.24"/>
+                  </svg>
+                  <span>Download for macOS</span>
+                </a>
 
-          <!-- Trust Strip -->
-          <div class="trust-strip" role="list" aria-label="Key trust signals">
-            <span class="trust-item" role="listitem">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Local only
-            </span>
-            <span class="trust-sep" aria-hidden="true">·</span>
-            <span class="trust-item" role="listitem">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-              No account
-            </span>
-            <span class="trust-sep" aria-hidden="true">·</span>
-            <span class="trust-item" role="listitem">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/></svg>
-              No cloud relay
-            </span>
-            <span class="trust-sep" aria-hidden="true">·</span>
-            <span class="trust-item" role="listitem">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              Open source
-            </span>
-          </div>
-
-          <div class="hero-platforms">
-            <span class="platform-group">
-              <span class="platform-label">Connect via</span>
-              <span class="platform-item">Wi-Fi &amp; Bluetooth HID</span>
-            </span>
-            <span class="platform-group">
-              <span class="platform-label">Works with</span>
-              <span class="platform-item">macOS</span>
-              <span class="platform-sep">·</span>
-              <span class="platform-item">Windows</span>
-            </span>
-          </div>
-        </div>
-
-        <!-- Right Column: Product Demonstration -->
-        <div class="hero-visual">
-          <div class="demo-stage">
-
-            <!-- 1. The Phone Mockup -->
-            <div class="phone-mockup" role="img" aria-label="Phone showing BlanketCozzy - Trackpad app with connected status">
-              <div class="phone-notch"></div>
-              <div class="phone-screen">
-
-                <!-- Phone Header -->
-                <div class="phone-header">
-                  <div class="phone-device-info">
-                    <span class="phone-device-icon" aria-hidden="true">💻</span>
-                    <div>
-                      <div class="phone-device-name">My Computer</div>
-                      <div class="phone-device-sub">Local Network · 3.8ms</div>
-                    </div>
-                  </div>
-                  <div class="phone-status-pill">
-                    <span class="status-dot-live" aria-hidden="true"></span>
-                    <span>Connected</span>
-                  </div>
-                </div>
-
-                <!-- Phone Touchpad Surface -->
-                <div class="phone-touchpad" aria-hidden="true">
-                  <div class="touchpad-grid"></div>
-
-                  <!-- Animated Touch Finger -->
-                  <div class="animated-touch-finger">
-                    <div class="touch-ripple"></div>
-                    <div class="touch-dot"></div>
-                  </div>
-
-                  <!-- Gesture hints -->
-                  <div class="phone-gesture-hints">
-                    <span>1-finger move</span>
-                    <span>2-finger scroll</span>
-                  </div>
-                </div>
-
-                <!-- Phone Dock Bar -->
-                <div class="phone-dock" aria-hidden="true">
-                  <div class="dock-btn active">Left Click</div>
-                  <div class="dock-btn">Present</div>
-                  <div class="dock-btn">Type</div>
-                  <div class="dock-btn">Right</div>
-                </div>
-
+                <a href="downloads/BlanketCozzy-Windows.exe" class="btn btn-pill-light btn-hero-windows" download="BlanketCozzy-Windows.exe" id="hero-windows-btn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
+                  </svg>
+                  <span>Download for Windows</span>
+                </a>
               </div>
-            </div>
 
-            <!-- 2. Connection Bridge -->
-            <div class="wifi-bridge" aria-hidden="true">
-              <div class="wifi-line">
-                <div class="wifi-packet"></div>
-              </div>
-              <div class="wifi-badge">
-                <span>Fast &amp; Local</span>
-              </div>
-            </div>
-
-            <!-- 3. The Laptop Mockup with Live Moving Cursor -->
-            <div class="laptop-mockup" role="img" aria-label="Laptop showing cursor being controlled remotely">
-              <div class="laptop-screen">
-                <div class="laptop-topbar">
-                  <div class="window-dots" aria-hidden="true">
-                    <span class="dot-red"></span>
-                    <span class="dot-yellow"></span>
-                    <span class="dot-green"></span>
-                  </div>
-                  <div class="window-title">Desktop Companion Active</div>
-                </div>
-                <div class="laptop-content">
-                  <div class="screen-preview-card">
-                    <div class="screen-tag-mini">Slide 04 / 18</div>
-                    <div class="screen-preview-line"></div>
-                    <div class="screen-preview-subline"></div>
-                  </div>
-
-                  <!-- Live animated cursor on laptop following phone gestures -->
-                  <div class="animated-cursor" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M5.5 3.2L18.8 12.2C19.7 12.8 19.4 14.2 18.3 14.4L13.1 15.3L15.9 21.2C16.3 22.1 15.4 23 14.5 22.5L9.6 19.8L6.4 22.8C5.6 23.5 4.3 22.9 4.4 21.8L5.5 3.2Z" fill="#3B82F6" stroke="#FFFFFF" stroke-width="1.5"/>
+              <!-- Feature Bullets Strip -->
+              <div class="hero-feature-pills" role="list" aria-label="Key highlights">
+                <div class="pill-item" role="listitem">
+                  <div class="pill-icon-svg">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                     </svg>
-                    <div class="cursor-click-ring"></div>
+                  </div>
+                  <div class="pill-text-stack">
+                    <span class="pill-line-main">Low Latency</span>
+                    <span class="pill-line-sub">(~3.8ms)</span>
+                  </div>
+                </div>
+
+                <div class="pill-item" role="listitem">
+                  <div class="pill-icon-svg">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                      <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                      <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                    </svg>
+                  </div>
+                  <div class="pill-text-stack">
+                    <span class="pill-line-main">Gestures</span>
+                    <span class="pill-line-sub">&amp; Multi-touch</span>
+                  </div>
+                </div>
+
+                <div class="pill-item" role="listitem">
+                  <div class="pill-icon-svg">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="2" y="3" width="20" height="14" rx="2"/>
+                      <line x1="8" y1="21" x2="16" y2="21"/>
+                      <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                  </div>
+                  <div class="pill-text-stack">
+                    <span class="pill-line-main">Presentation</span>
+                    <span class="pill-line-sub">Controls</span>
+                  </div>
+                </div>
+
+                <div class="pill-item" role="listitem">
+                  <div class="pill-icon-svg">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <div class="pill-text-stack">
+                    <span class="pill-line-main">Zero Cloud</span>
+                    <span class="pill-line-sub">Relay</span>
                   </div>
                 </div>
               </div>
-              <div class="laptop-base"></div>
+            </div>
+          </div>
+
+          <!-- Synchronized Cursor & Touch Interaction Layer -->
+          <div class="hero-sync-layer" aria-label="Interactive wireless trackpad demonstration">
+            <!-- Phone Trackpad Interactive Hitbox -->
+            <div class="phone-trackpad-hitbox" id="phoneTrackpad" title="Move or drag your mouse here to control the cursor!">
+              <div class="hitbox-hint">Touch to control</div>
             </div>
 
-          </div>
-        </div>
+            <!-- Animated Phone Touch Indicator -->
+            <div class="phone-touch-dot" id="touchDot" aria-hidden="true">
+              <span class="touch-ring"></span>
+              <span class="touch-core"></span>
+            </div>
 
-      </div>
+            <!-- Phone Tap/Click Ripple -->
+            <div class="phone-touch-ripple" id="touchRipple" aria-hidden="true"></div>
+
+            <!-- Laptop Screen Animated Cursor -->
+            <div class="laptop-cursor-arrow" id="laptopCursor" aria-hidden="true">
+              <svg width="20" height="24" viewBox="0 0 18 22" fill="none">
+                <path d="M1 1L6.5 20L9.5 13.5L16.5 12L1 1Z" fill="#111827" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <!-- Laptop Click Ripple Effect -->
+            <div class="laptop-click-ripple" id="laptopRipple" aria-hidden="true"></div>
+          </div>
+
+        </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="setup-section" aria-labelledby="how-it-works-heading">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-eyebrow">Setup</div>
-          <h2 id="how-it-works-heading" class="section-title">How it works</h2>
-          <p class="section-subtitle">Up and running in seconds — no drivers, no accounts, no configuration.</p>
+    <!-- ========================================================================= -->
+    <!-- 3. QUICK SETUP / HOW IT WORKS SECTION                                     -->
+    <!-- ========================================================================= -->
+    <section id="how-it-works" class="quick-setup-section" aria-labelledby="how-it-works-heading">
+      <div class="container quick-setup-grid">
+
+        <!-- Left Header -->
+        <div class="quick-setup-header">
+          <div class="section-tag">QUICK SETUP</div>
+          <h2 id="how-it-works-heading" class="section-heading">How It Works</h2>
+          <p class="section-subtext">Get started in three simple steps.</p>
         </div>
 
-        <div class="flow-pipeline">
+        <!-- Right 3-Step Flow Pipeline -->
+        <div class="quick-setup-steps">
           <!-- Step 1 -->
-          <div class="flow-step">
-            <div class="flow-step-num">01</div>
-            <h3 class="flow-step-title">Connect Wi-Fi or Bluetooth</h3>
-            <p class="flow-step-desc">
-              Launch the lightweight companion on your Mac or PC for Wi-Fi, or pair directly via Bluetooth — no software required on your system.
-            </p>
-            <div class="flow-code-preview">
-              <code>$ companion.app (Wi-Fi) or Bluetooth HID</code>
+          <div class="step-card">
+            <div class="step-icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
             </div>
+            <div class="step-body">
+              <span class="step-num">01</span>
+              <h3 class="step-title">Connect</h3>
+              <p class="step-desc">Make sure your computer and phone<br>are on the same local network.</p>
+            </div>
+          </div>
+
+          <div class="step-connector" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </div>
 
           <!-- Step 2 -->
-          <div class="flow-step">
-            <div class="flow-step-num">02</div>
-            <h3 class="flow-step-title">Open the Mobile App</h3>
-            <p class="flow-step-desc">
-              Open BlanketCozzy - Trackpad on your phone. Automatic local discovery finds your computer in under a second — no IP address needed.
-            </p>
-            <div class="flow-card-preview">
-              <span class="device-dot"></span>
-              <span>Computer found</span>
+          <div class="step-card">
+            <div class="step-icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="6" y="2" width="12" height="20" rx="3" ry="3"/>
+                <line x1="11" y1="18" x2="13" y2="18"/>
+              </svg>
             </div>
+            <div class="step-body">
+              <span class="step-num">02</span>
+              <h3 class="step-title">Open Mobile App</h3>
+              <p class="step-desc">Launch BlanketCozzy<br>TrackPad on your phone.</p>
+            </div>
+          </div>
+
+          <div class="step-connector" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </div>
 
           <!-- Step 3 -->
-          <div class="flow-step">
-            <div class="flow-step-num">03</div>
-            <h3 class="flow-step-title">Control Instantly</h3>
-            <p class="flow-step-desc">
-              Tap to connect. Navigate with gestures, click with volume buttons, or advance presentation slides.
+          <div class="step-card">
+            <div class="step-icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 4l7.07 17 2.51-7.39L21 11.1 4 4z"/>
+              </svg>
+            </div>
+            <div class="step-body">
+              <span class="step-num">03</span>
+              <h3 class="step-title">Control Instantly</h3>
+              <p class="step-desc">Start using your phone as a<br>trackpad, clicker and more.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 4. POWERFUL FEATURES ORBITAL SHOWCASE (SCREEN UI MATCHING HERO)           -->
+    <!-- ========================================================================= -->
+    <section id="features" class="features-orbit-section" aria-labelledby="features-heading">
+      <div class="container features-orbit-container">
+
+        <!-- Section Header -->
+        <div class="features-orbit-header">
+          <h2 id="features-heading" class="section-heading">Everything you need. Nothing you don't.</h2>
+          <p class="section-subtext">Control your computer with natural gestures, quick actions and seamless connectivity — all from a single clean interface.</p>
+        </div>
+
+        <!-- 3-Column Radial Orbit Showcase -->
+        <div class="features-orbit-stage" id="featuresOrbitStage">
+
+          <!-- Radiant Orbit Background Graphic -->
+          <div class="orbit-rings-wrap" aria-hidden="true">
+            <svg class="orbit-svg" viewBox="0 0 620 660" fill="none">
+              <defs>
+                <radialGradient id="orbitRadialAura" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.14"/>
+                  <stop offset="65%" stop-color="#38BDF8" stop-opacity="0.03"/>
+                  <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="310" cy="330" r="280" fill="url(#orbitRadialAura)"/>
+              <!-- Outer subtle dashed trajectory -->
+              <ellipse cx="310" cy="330" rx="265" ry="295" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5 7" opacity="0.6"/>
+              <!-- Inner soft continuous orbit arc -->
+              <ellipse cx="310" cy="330" rx="250" ry="280" stroke="#93C5FD" stroke-width="1.8" stroke-dasharray="6 6" opacity="0.75"/>
+            </svg>
+          </div>
+
+          <!-- The Stationary Phone Device (Displaying BlanketCozzy - Trackpad App) -->
+          <div class="orbit-phone-device" id="orbitPhoneDevice">
+            <div class="orbit-phone-inner">
+
+              <!-- 1. Phone Status Bar -->
+              <div class="phone-status-bar">
+                <span class="status-time">9:41</span>
+                <div class="phone-dynamic-island"></div>
+                <div class="status-system-icons">
+                  <!-- Cellular Signal -->
+                  <svg width="13" height="9" viewBox="0 0 16 12" fill="currentColor">
+                    <rect x="1" y="9" width="2" height="3" rx="0.5"/>
+                    <rect x="5" y="6" width="2" height="6" rx="0.5"/>
+                    <rect x="9" y="3" width="2" height="9" rx="0.5"/>
+                    <rect x="13" y="0" width="2" height="12" rx="0.5"/>
+                  </svg>
+                  <!-- Wi-Fi -->
+                  <svg width="12" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/>
+                  </svg>
+                  <!-- Battery -->
+                  <div class="phone-battery-icon"><div class="battery-level"></div></div>
+                </div>
+              </div>
+
+              <!-- 2. Connected Header Card (MacBook Pro) -->
+              <div class="phone-app-header-card" id="phoneAppHeader">
+                <div class="phone-device-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="12" rx="2"/>
+                    <line x1="2" y1="20" x2="22" y2="20"/>
+                  </svg>
+                </div>
+                <div class="phone-device-text">
+                  <div class="phone-device-name">MacBook Pro</div>
+                  <div class="phone-device-sub">10.90.63.215:8765</div>
+                </div>
+                <div class="phone-status-pill" id="phoneStatusPill">
+                  <span class="pill-dot-glow"></span>
+                  <span>Connected</span>
+                </div>
+              </div>
+
+              <!-- 3. Main Touchpad Surface (With Dot Matrix & Live Active Dot) -->
+              <div class="phone-touchpad-area" id="orbitPhoneTrackpad">
+                <div class="phone-touchpad-grid"></div>
+                <div class="phone-touchpad-hint">1-finger move · 2-finger scroll</div>
+                
+                <!-- Pulsing Interactive Touch Dot -->
+                <div class="phone-live-touch-dot" id="orbitPhoneDot">
+                  <span class="touch-core-circle"></span>
+                  <span class="touch-wave-pulse"></span>
+                </div>
+              </div>
+
+              <!-- 4. Bottom Action Dock Bar (4 Buttons Matching App) -->
+              <div class="phone-dock-container">
+                <div class="dock-btn-slot active" id="slotLeft">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="6" y="3" width="12" height="18" rx="6"/>
+                    <line x1="12" y1="3" x2="12" y2="10"/>
+                    <line x1="6" y1="10" x2="12" y2="10"/>
+                  </svg>
+                  <span>Left Click</span>
+                </div>
+                <div class="dock-btn-slot" id="slotPresent">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="3" y="3" width="18" height="13" rx="2"/>
+                    <polygon points="10 7 14 9.5 10 12 10 7" fill="currentColor"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="16" x2="12" y2="21"/>
+                  </svg>
+                  <span>Present</span>
+                </div>
+                <div class="dock-btn-slot" id="slotType">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="6" y1="9" x2="6.01" y2="9"/>
+                    <line x1="10" y1="9" x2="10.01" y2="9"/>
+                    <line x1="14" y1="9" x2="14.01" y2="9"/>
+                    <line x1="18" y1="9" x2="18.01" y2="9"/>
+                    <line x1="7" y1="15" x2="17" y2="15"/>
+                  </svg>
+                  <span>Type</span>
+                </div>
+                <div class="dock-btn-slot" id="slotRight">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="6" y="3" width="12" height="18" rx="6"/>
+                    <line x1="12" y1="3" x2="12" y2="10"/>
+                    <line x1="12" y1="10" x2="18" y2="10"/>
+                  </svg>
+                  <span>Right</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- 6 Revolving Orbit Feature Nodes (Positioned dynamically on the dotted orbit) -->
+          <div class="orbit-nodes-container" id="orbitNodesContainer">
+
+            <!-- Node 1: Native Gestures -->
+            <div class="orbit-node is-left" data-feature="gestures" id="nodeGestures">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 9V5a3 3 0 0 0-3-3v0a3 3 0 0 0-3 3v8l-2-2a2 2 0 0 0-2.8 2.8l4.8 4.8A6 6 0 0 0 12.2 21H16a5 5 0 0 0 5-5v-5a2 2 0 0 0-2-2h-5"/>
+                  <path d="M4 4a6 6 0 0 1 8-2"/>
+                  <path d="M11 2l2 2-2 2"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Native Gestures</h3>
+                <p class="orbit-feature-desc">Swipe, pinch, scroll<br>and more.</p>
+              </div>
+            </div>
+
+            <!-- Node 2: Presentation Clicker -->
+            <div class="orbit-node is-left" data-feature="clicker" id="nodeClicker">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="13" rx="2"/>
+                  <polygon points="10 7 15 9.5 10 12 10 7" fill="#2563EB"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="16" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Presentation Clicker</h3>
+                <p class="orbit-feature-desc">Navigate slides<br>with ease.</p>
+              </div>
+            </div>
+
+            <!-- Node 3: Remote Typing -->
+            <div class="orbit-node is-left" data-feature="typing" id="nodeTyping">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="3"/>
+                  <line x1="6" y1="9" x2="6.01" y2="9" stroke-width="2.5"/>
+                  <line x1="10" y1="9" x2="10.01" y2="9" stroke-width="2.5"/>
+                  <line x1="14" y1="9" x2="14.01" y2="9" stroke-width="2.5"/>
+                  <line x1="18" y1="9" x2="18.01" y2="9" stroke-width="2.5"/>
+                  <line x1="6" y1="12" x2="6.01" y2="12" stroke-width="2.5"/>
+                  <line x1="10" y1="12" x2="10.01" y2="12" stroke-width="2.5"/>
+                  <line x1="14" y1="12" x2="14.01" y2="12" stroke-width="2.5"/>
+                  <line x1="18" y1="12" x2="18.01" y2="12" stroke-width="2.5"/>
+                  <line x1="8" y1="15" x2="16" y2="15" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Remote Typing</h3>
+                <p class="orbit-feature-desc">Type on your computer<br>directly from your phone.</p>
+              </div>
+            </div>
+
+            <!-- Node 4: Hardware Clicks -->
+            <div class="orbit-node is-right" data-feature="hardware" id="nodeHardware">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="26" height="24" viewBox="0 0 28 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="24" height="14" rx="7"/>
+                  <line x1="7" y1="12" x2="11" y2="12"/>
+                  <path d="M14 8c.8 2.5.8 5.5 0 8"/>
+                  <line x1="17" y1="12" x2="21" y2="12"/>
+                  <line x1="19" y1="10" x2="19" y2="14"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Hardware Clicks</h3>
+                <p class="orbit-feature-desc">Use volume buttons<br>for quick clicks.</p>
+              </div>
+            </div>
+
+            <!-- Node 5: Zero-Config Discovery -->
+            <div class="orbit-node is-right" data-feature="discovery" id="nodeDiscovery">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="13" height="10" rx="1.5"/>
+                  <path d="M2 17h15"/>
+                  <circle cx="17" cy="15" r="4"/>
+                  <line x1="20" y1="18" x2="22" y2="20"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Zero-Config Discovery</h3>
+                <p class="orbit-feature-desc">Find and connect<br>instantly.</p>
+              </div>
+            </div>
+
+            <!-- Node 6: Wi-Fi & Bluetooth HID -->
+            <div class="orbit-node is-right" data-feature="wireless" id="nodeWireless">
+              <div class="orbit-connector-dot" aria-hidden="true"></div>
+              <div class="orbit-icon-circle" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 8.5C5.5 6 9 4.5 13 4.5c4 0 7.5 1.5 10 4"/>
+                  <path d="M6 12c2-1.5 4.5-2.5 7-2.5"/>
+                  <polyline points="15 13 18 16 15 19 15 10 18 13 15 16"/>
+                  <circle cx="9" cy="18" r="1.5" fill="#2563EB"/>
+                </svg>
+              </div>
+              <div class="orbit-feature-text">
+                <h3 class="orbit-feature-title">Wi-Fi &amp; Bluetooth HID</h3>
+                <p class="orbit-feature-desc">Works over Wi-Fi<br>and Bluetooth.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 5. GET STARTED / DOWNLOAD SECTION (LIGHT THEME)                           -->
+    <!-- ========================================================================= -->
+    <section id="download" class="download-section-light" aria-labelledby="download-heading">
+      <!-- Studio Desk Angle Phone & Laptop Background Graphic (Left side) -->
+      <div class="download-desk-bg" aria-hidden="true">
+        <img src="assets/download_desk_backdrop.png" alt="" class="download-desk-img">
+      </div>
+
+      <div class="container download-container">
+        
+        <!-- Main Content Row -->
+        <div class="download-main-grid">
+
+          <!-- Left Info Column -->
+          <div class="download-left-col">
+            <div class="download-tag">GET STARTED</div>
+            <h2 id="download-heading" class="download-title">
+              Download<br>
+              <span class="brand-gradient-text">BlanketCozzy</span><br>
+              TrackPad
+            </h2>
+            <p class="download-subtitle">
+              Your phone. Your trackpad. Choose how you connect.
             </p>
-            <div class="flow-status-preview">
-              <span class="device-dot"></span>
-              <span class="status-indicator">Connected · 3.8ms</span>
-            </div>
           </div>
-        </div>
 
-      </div>
-    </section>
+          <!-- Right Interactive Flow Column -->
+          <div class="download-flow-col">
+            
+            <!-- 1. Android Phone Card -->
+            <div class="download-card download-card-phone">
+              <span class="card-badge-pill">Phone App</span>
+              
+              <!-- Mini Phone Mockup -->
+              <div class="card-phone-mockup" aria-hidden="true">
+                <div class="mini-phone-bezel">
+                  <div class="mini-phone-screen">
+                    <div class="mini-phone-statusbar">
+                      <span class="mini-status-time">9:41</span>
+                      <div class="mini-status-icons">
+                        <span class="mini-icon-wifi"></span>
+                        <span class="mini-icon-battery"></span>
+                      </div>
+                    </div>
+                    <div class="mini-phone-camera"></div>
+                    <div class="mini-phone-center">
+                      <div class="mini-logo-wrap">
+                        <img src="app_logo.png" alt="BlanketCozzy App Logo" class="mini-phone-logo">
+                      </div>
+                      <span class="mini-phone-label">BlanketCozzy<br><small>TrackPad</small></span>
+                    </div>
+                  </div>
+                  <div class="mini-phone-btn mini-btn-vol"></div>
+                  <div class="mini-phone-btn mini-btn-pwr"></div>
+                </div>
+              </div>
 
-    <!-- Features Section -->
-    <section id="features" class="container features-section" aria-labelledby="features-heading">
-      <div class="section-header">
-        <div class="section-eyebrow">Capabilities</div>
-        <h2 id="features-heading" class="section-title">Engineered for precision</h2>
-        <p class="section-subtitle">Designed to feel as natural and responsive as a physical trackpad.</p>
-      </div>
+              <div class="card-content-body">
+                <h3 class="card-app-title">Android App</h3>
+                <span class="card-app-sub">Trackpad, clicker and keyboard</span>
+                
+                <div class="card-conn-modes">
+                  <div class="conn-mode-item">
+                    <span class="conn-mode-name">Bluetooth</span>
+                    <span class="conn-mode-detail">Connect directly &middot; No desktop app needed</span>
+                  </div>
 
-      <div class="showcase-grid">
-        <!-- Feature 1: Multi-Touch Gestures -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-icon" aria-hidden="true">✌️</span>
-              <span class="badge-label">2-Finger Scroll</span>
+                  <div class="conn-mode-item">
+                    <span class="conn-mode-name">Wi-Fi</span>
+                    <span class="conn-mode-detail">Install the desktop companion</span>
+                  </div>
+                </div>
+                
+                <a href="https://play.google.com/store/apps/details?id=com.trackpad.remote" class="btn btn-google-play" target="_blank" rel="noopener">
+                  <svg class="google-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M3.6 2.4c-.2.2-.3.6-.3 1v17.2c0 .5.1.8.3 1l9.6-9.6L3.6 2.4z" fill="#00D2FF"/>
+                    <path d="M16.8 8.4l-3.6 3.6 3.6 3.6 4.3-2.5c1.2-.7 1.2-1.8 0-2.5l-4.3-2.2z" fill="#FFCE00"/>
+                    <path d="M3.6 21.6l9.6-9.6 3.6 3.6-11.2 6.5c-.7.4-1.5.1-2-.5z" fill="#FF3A44"/>
+                    <path d="M3.6 2.4c.5-.5 1.3-.8 2-.4l11.2 6.4-3.6 3.6-9.6-9.6z" fill="#00E676"/>
+                  </svg>
+                  <span>Get it on Google Play</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              </div>
             </div>
-            <span class="card-tag">Touch</span>
+
+            <!-- 2. Connecting Wi-Fi Bridge -->
+            <div class="download-wifi-bridge" aria-hidden="true">
+              <div class="wifi-bridge-line"></div>
+              <div class="wifi-bridge-node">
+                <div class="wifi-circle-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                    <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                    <line x1="12" y1="20" x2="12.01" y2="20"/>
+                  </svg>
+                </div>
+                <span class="wifi-node-label">Wi-Fi Companion<br><small class="wifi-node-sub">(Required for Wi-Fi)</small></span>
+              </div>
+              <div class="wifi-bridge-line"></div>
+            </div>
+
+            <!-- 3. Desktop App Card (macOS + Windows) -->
+            <div class="download-card download-card-desktop">
+              <span class="card-badge-pill">Desktop App</span>
+              
+              <div class="desktop-platforms-grid">
+                
+                <!-- macOS Column -->
+                <div class="desktop-platform-col">
+                  <div class="platform-icon-circle apple-icon-bg">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.66-.99 1.72-.86 2.74 1.01.08 2.01-.54 2.57-1.24"/>
+                    </svg>
+                  </div>
+                  <h4 class="platform-col-title">TrackPad for macOS</h4>
+                  <span class="platform-col-specs">Apple Silicon + Intel</span>
+                  
+                  <a href="downloads/BlanketCozzy-macOS.dmg" class="btn btn-pill-dark btn-download-platform" download="BlanketCozzy-macOS.dmg" id="card-download-mac">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span>Download for Mac</span>
+                  </a>
+                </div>
+
+                <!-- Windows Column -->
+                <div class="desktop-platform-col">
+                  <div class="platform-icon-circle windows-icon-bg">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#0078D7" aria-hidden="true">
+                      <path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
+                    </svg>
+                  </div>
+                  <h4 class="platform-col-title">TrackPad for Windows</h4>
+                  <span class="platform-col-specs">Windows 10 / 11</span>
+                  
+                  <a href="downloads/BlanketCozzy-Windows.exe" class="btn btn-pill-light btn-download-platform" download="BlanketCozzy-Windows.exe" id="card-download-win">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
+                    </svg>
+                    <span>Download for Windows</span>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-          <h3 class="feature-title">Native Gestures</h3>
-          <p class="feature-desc">
-            Natural two-finger smooth scrolling, tap-to-click, and click-and-drag window selection tuned for fluid tracking.
-          </p>
+
         </div>
 
-        <!-- Feature 2: Presentation Clicker -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-icon" aria-hidden="true">📽️</span>
-              <span class="badge-label">Keynote &amp; Slides</span>
-            </div>
-            <span class="card-tag">Slides</span>
-          </div>
-          <h3 class="feature-title">Presentation Clicker</h3>
-          <p class="feature-desc">
-            Swipe left/right or use phone volume buttons to advance slides during presentations with subtle haptic cues.
-          </p>
-        </div>
-
-        <!-- Feature 3: Remote Typing -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-icon" aria-hidden="true">⌨️</span>
-              <span class="badge-label">Remote Typing</span>
-            </div>
-            <span class="card-tag">Input</span>
-          </div>
-          <h3 class="feature-title">Remote Typing</h3>
-          <p class="feature-desc">
-            Type long messages, search queries, or terminal commands on your mobile keyboard straight into your computer.
-          </p>
-        </div>
-
-        <!-- Feature 4: Hardware Rocker Clicks -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-icon" aria-hidden="true">🔊</span>
-              <span class="badge-label">Volume Clicker</span>
-            </div>
-            <span class="card-tag">Hardware</span>
-          </div>
-          <h3 class="feature-title">Hardware Rocker Clicks</h3>
-          <p class="feature-desc">
-            Map volume buttons to mouse clicks for effortless no-look navigation while relaxing in bed or on the couch.
-          </p>
-        </div>
-
-        <!-- Feature 5: Zero-Config Discovery -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-dot-online" aria-hidden="true"></span>
-              <span class="badge-label">Computer Found</span>
-            </div>
-            <span class="card-tag">Discovery</span>
-          </div>
-          <h3 class="feature-title">Connect instantly</h3>
-          <p class="feature-desc">
-            Automatic local discovery finds your computer in under one second. No IP address, no manual setup, no account.
-          </p>
-        </div>
-
-        <!-- Feature 6: Dual Wi-Fi & Bluetooth Mode -->
-        <div class="feature-card">
-          <div class="card-visual-header">
-            <div class="feature-badge-visual">
-              <span class="badge-icon" aria-hidden="true">⚡</span>
-              <span class="badge-label">Wi-Fi &amp; Bluetooth</span>
-            </div>
-            <span class="card-tag">Dual Mode</span>
-          </div>
-          <h3 class="feature-title">Wi-Fi &amp; Bluetooth HID</h3>
-          <p class="feature-desc">
-            Seamlessly switch between local high-speed Wi-Fi and direct Bluetooth HID — zero desktop software required for Bluetooth mode.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Download Section -->
-    <section id="download" class="container download-container" aria-labelledby="download-heading">
-      <div class="launch-cta-card">
-        <h2 id="download-heading" class="launch-cta-title">Your computer, comfortably in control.</h2>
-        <p class="launch-cta-desc">
-          Download the lightweight companion for macOS or Windows.
-        </p>
-
-        <div class="cta-download-grid">
-          <a href="downloads/BlanketCozzy-macOS.dmg" class="btn btn-primary btn-cta" download="BlanketCozzy-macOS.dmg" id="download-macos">
-            <span class="btn-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.66-.99 1.72-.86 2.74 1.01.08 2.01-.54 2.57-1.24"/>
-              </svg>
-            </span>
-            <div class="btn-cta-text">
-              <span class="btn-title">Download for macOS</span>
-              <span class="btn-subtitle">Apple Silicon &amp; Intel · .dmg</span>
-            </div>
-          </a>
-          <a href="downloads/BlanketCozzy-Windows.exe" class="btn btn-secondary btn-cta" download="BlanketCozzy-Windows.exe" id="download-windows">
-            <span class="btn-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
-              </svg>
-            </span>
-            <div class="btn-cta-text">
-              <span class="btn-title">Download for Windows</span>
-              <span class="btn-subtitle">Windows 10 / 11 · 64-bit · .exe</span>
-            </div>
-          </a>
-        </div>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-content">
-      <p class="footer-text">
-        © 2026 BlanketCozzy - Trackpad. Built for speed and privacy.
-      </p>
-      <div class="footer-links">
-        <a href="privacy.html">Privacy Policy</a>
+  <!-- ========================================================================= -->
+  <!-- 6. FOOTER (DARK THEME)                                                    -->
+  <!-- ========================================================================= -->
+  <footer class="footer-dark">
+    <div class="container footer-dark-content">
+
+      <!-- Logo -->
+      <a href="/" class="footer-logo">
+        <div class="logo-icon-sm">
+          <img src="app_logo.png" alt="BlanketCozzy Logo" class="logo-img-sm">
+        </div>
+        <span class="footer-brand">BlanketCozzy</span>
+        <span class="logo-divider-dark">--</span>
+        <span class="footer-sub">TrackPad</span>
+      </a>
+
+      <!-- Copyright & Privacy Link -->
+      <div class="footer-meta">
+        <p class="footer-rights">Built for speed and privacy. &copy; 2026 BlanketCozzy</p>
+        <span class="footer-meta-sep" aria-hidden="true">&bull;</span>
+        <a href="privacy.html" class="footer-privacy-link">Privacy Policy</a>
       </div>
+
     </div>
   </footer>
 
+  <script src="script.js" defer></script>
 </body>
 </html>

@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     private var isDrawerExpanded = false
     private var isPresentationMode = false
     private var isConnectionLost = false
+    private var isTypingInternalUpdate = false
 
     // Bluetooth permission request launcher (API 31+)
     private val requestBluetoothPermissionsLauncher = registerForActivityResult(
@@ -897,32 +898,67 @@ class MainActivity : AppCompatActivity() {
             closeRemoteTyping()
         }
 
+        // Realtime typing: dispatch each character/text addition as it is typed
+        binding.etTypingInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isTypingInternalUpdate) return
+
+                if (count > 0) {
+                    val added = s?.subSequence(start, start + count)?.toString() ?: ""
+                    if (added.isNotEmpty()) {
+                        dispatchText(added)
+                    }
+                } else if (before > 0) {
+                    for (i in 0 until before) {
+                        dispatchKey("backspace")
+                    }
+                }
+            }
+
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        // Soft keyboard Enter key listener
+        binding.etTypingInput.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEND ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_DOWN)
+            ) {
+                dispatchKey("enter")
+                true
+            } else {
+                false
+            }
+        }
+
         binding.btnTypingBackspace.setOnClickListener {
             vibrate(20)
             dispatchKey("backspace")
             val current = binding.etTypingInput.text.toString()
             if (current.isNotEmpty()) {
+                isTypingInternalUpdate = true
                 binding.etTypingInput.setText(current.substring(0, current.length - 1))
                 binding.etTypingInput.setSelection(binding.etTypingInput.text.length)
+                isTypingInternalUpdate = false
             }
         }
 
         binding.btnTypingEnter.setOnClickListener {
             vibrate(25)
             dispatchKey("enter")
+            isTypingInternalUpdate = true
             binding.etTypingInput.setText("")
+            isTypingInternalUpdate = false
         }
 
         binding.btnTypingSend.setOnClickListener {
-            val text = binding.etTypingInput.text.toString()
-            if (text.isNotEmpty()) {
-                vibrate(35)
-                dispatchText(text)
-                binding.etTypingInput.setText("")
-                closeRemoteTyping()
-                // Show confirmation modal (Screen 7)
-                binding.layoutConfirmationModal.visibility = View.VISIBLE
-            }
+            vibrate(35)
+            isTypingInternalUpdate = true
+            binding.etTypingInput.setText("")
+            isTypingInternalUpdate = false
+            closeRemoteTyping()
         }
 
         binding.btnConfirmationOk.setOnClickListener {
@@ -935,10 +971,17 @@ class MainActivity : AppCompatActivity() {
         binding.btnDockKeyboard.setBackgroundResource(R.drawable.dock_btn_active)
         binding.ivDockKeyboardIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_white))
         binding.tvDockKeyboardLabel.setTextColor(ContextCompat.getColor(this, R.color.text_white))
+        isTypingInternalUpdate = true
+        binding.etTypingInput.setText("")
+        isTypingInternalUpdate = false
         binding.etTypingInput.requestFocus()
+        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        imm?.showSoftInput(binding.etTypingInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun closeRemoteTyping() {
+        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        imm?.hideSoftInputFromWindow(binding.etTypingInput.windowToken, 0)
         binding.layoutRemoteTyping.visibility = View.GONE
         binding.btnDockKeyboard.setBackgroundResource(R.drawable.dock_btn_normal)
         binding.ivDockKeyboardIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary))

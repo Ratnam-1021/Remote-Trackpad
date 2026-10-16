@@ -285,7 +285,11 @@ elif OS_TYPE == "Windows":
             user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, int(dy * 20), 0)
 
         def type_text(self, text):
-            pass
+            KEYEVENTF_UNICODE = 0x0004
+            KEYEVENTF_KEYUP = 0x0002
+            for char in text:
+                user32.keybd_event(0, ord(char), KEYEVENTF_UNICODE, 0)
+                user32.keybd_event(0, ord(char), KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0)
 
         def press_key(self, key_name):
             vk = VK_MAP.get(key_name.lower())
@@ -484,9 +488,13 @@ def handle_client(conn, addr):
                         dy = float(parts[2])
                         controller.scroll(dx, dy)
 
-                    elif cmd == "TEXT" and len(parts) >= 2:
-                        text = " ".join(parts[1:])
-                        controller.type_text(text)
+                    elif cmd == "TEXT":
+                        if msg.startswith("TEXT "):
+                            text = msg[5:]
+                            controller.type_text(text)
+                        elif len(parts) >= 2:
+                            text = " ".join(parts[1:])
+                            controller.type_text(text)
 
                     elif cmd == "KEY" and len(parts) >= 2:
                         controller.press_key(parts[1])
