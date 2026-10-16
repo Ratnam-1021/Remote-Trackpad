@@ -1498,7 +1498,19 @@ class MainActivity : AppCompatActivity() {
         if (currentConnectionType == ConnectionType.BLUETOOTH && ::btManager.isInitialized && btManager.isConnected()) {
             btManager.sendText(text)
         } else {
-            client.sendText(text)
+            if (text == " ") {
+                dispatchKey("space")
+            } else if (text.contains(" ")) {
+                for (char in text) {
+                    if (char == ' ') {
+                        dispatchKey("space")
+                    } else {
+                        client.sendText(char.toString())
+                    }
+                }
+            } else {
+                client.sendText(text)
+            }
         }
     }
 

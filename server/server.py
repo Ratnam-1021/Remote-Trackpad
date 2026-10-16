@@ -434,11 +434,13 @@ def handle_client(conn, addr):
             buffer += data
             while '\n' in buffer:
                 line, buffer = buffer.split('\n', 1)
-                line = line.strip()
+                line = line.rstrip('\r\n')
                 if not line:
                     continue
                 
                 parts = line.split()
+                if not parts:
+                    continue
                 cmd = parts[0].upper()
 
                 try:
@@ -489,9 +491,11 @@ def handle_client(conn, addr):
                         controller.scroll(dx, dy)
 
                     elif cmd == "TEXT":
-                        if msg.startswith("TEXT "):
-                            text = msg[5:]
+                        if line.startswith("TEXT "):
+                            text = line[5:]
                             controller.type_text(text)
+                        elif line == "TEXT":
+                            controller.type_text(" ")
                         elif len(parts) >= 2:
                             text = " ".join(parts[1:])
                             controller.type_text(text)
