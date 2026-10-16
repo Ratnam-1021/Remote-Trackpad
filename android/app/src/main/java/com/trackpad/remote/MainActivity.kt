@@ -20,6 +20,7 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -118,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         setupSettingsScreen()
         setupTouchpadGesture()
         setupPresentationGestures()
+        setupBackNavigation()
 
         if (autoConnectEnabled && lastSavedIp.isNotEmpty()) {
             client.connect(lastSavedIp, lastSavedPort)
@@ -1512,6 +1514,36 @@ class MainActivity : AppCompatActivity() {
                 client.sendText(text)
             }
         }
+    }
+
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when {
+                    binding.layoutRemoteTyping.visibility == View.VISIBLE -> {
+                        closeRemoteTyping()
+                    }
+                    binding.layoutConfirmationModal.visibility == View.VISIBLE -> {
+                        binding.layoutConfirmationModal.visibility = View.GONE
+                    }
+                    binding.layoutSettingsScreen.visibility == View.VISIBLE -> {
+                        binding.layoutSettingsScreen.visibility = View.GONE
+                    }
+                    binding.layoutConnectScreen.visibility == View.VISIBLE -> {
+                        binding.layoutConnectScreen.visibility = View.GONE
+                    }
+                    isPresentationMode -> {
+                        isPresentationMode = false
+                        updatePresentationState()
+                    }
+                    else -> {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                        isEnabled = true
+                    }
+                }
+            }
+        })
     }
 
     override fun onDestroy() {
