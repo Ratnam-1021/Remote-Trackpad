@@ -316,15 +316,30 @@ p {
 
 .platform-label {
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .platform-item {
   color: var(--text-secondary);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .platform-sep {
   color: var(--text-muted);
+}
+
+.platform-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.platform-divider {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 /* ========================================================================= */
